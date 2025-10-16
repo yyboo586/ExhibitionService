@@ -1,0 +1,178 @@
+2025-10-17T15:39:46.046+08:00 [ERRO] {3e0295a84d376f18598818259096604a} [ 13 ms] [default] [exhibition_service] [rows:0  ] SHOW FULL COLUMNS FROM `t_file`
+Error: Error 1049 (42000): Unknown database 'exhibition_service' 
+Stack:
+1.  ExhibitionService/internal/logics.(*file).Create
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/logics/file.go:40
+2.  ExhibitionService/internal/service.(*fileService).PreUploadFile
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/service/file.go:33
+3.  main.CORS
+    /home/yyboo/platform/IUQT/ExhibitionService/main.go:46
+
+2025-10-17T15:39:46.062+08:00 [ERRO] {3e0295a84d376f18598818259096604a} [ 15 ms] [default] [exhibition_service] [rows:0  ] SHOW FULL COLUMNS FROM `t_file`
+Error: Error 1049 (42000): Unknown database 'exhibition_service' 
+Stack:
+1.  ExhibitionService/internal/logics.(*file).Create
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/logics/file.go:40
+2.  ExhibitionService/internal/service.(*fileService).PreUploadFile
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/service/file.go:33
+3.  main.CORS
+    /home/yyboo/platform/IUQT/ExhibitionService/main.go:46
+
+2025-10-17T15:39:46.075+08:00 [ERRO] {3e0295a84d376f18598818259096604a} [ 13 ms] [default] [exhibition_service] [rows:0  ] SHOW FULL COLUMNS FROM `t_file`
+Error: Error 1049 (42000): Unknown database 'exhibition_service' 
+Stack:
+1.  ExhibitionService/internal/logics.(*file).Create
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/logics/file.go:40
+2.  ExhibitionService/internal/service.(*fileService).PreUploadFile
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/service/file.go:33
+3.  main.CORS
+    /home/yyboo/platform/IUQT/ExhibitionService/main.go:46
+
+2025-10-17T15:39:46.094+08:00 [ERRO] {3e0295a84d376f18598818259096604a} [ 17 ms] [default] [exhibition_service] [rows:0  ] SHOW FULL COLUMNS FROM `t_file`
+Error: Error 1049 (42000): Unknown database 'exhibition_service' 
+Stack:
+1.  ExhibitionService/internal/logics.(*file).Create
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/logics/file.go:40
+2.  ExhibitionService/internal/service.(*fileService).PreUploadFile
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/service/file.go:33
+3.  main.CORS
+    /home/yyboo/platform/IUQT/ExhibitionService/main.go:46
+
+2025-10-17T15:42:37.739+08:00 [ERRO] {ed7c0da275376f185a881825a2332b4d} [ 17 ms] [default] [exhibition_service] [rows:0  ] SHOW FULL COLUMNS FROM `t_file`
+Error: Error 1049 (42000): Unknown database 'exhibition_service' 
+Stack:
+1.  ExhibitionService/internal/logics.(*file).Create
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/logics/file.go:40
+2.  ExhibitionService/internal/service.(*fileService).PreUploadFile
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/service/file.go:33
+3.  main.CORS
+    /home/yyboo/platform/IUQT/ExhibitionService/main.go:46
+
+2025-10-17T15:42:37.755+08:00 [ERRO] {ed7c0da275376f185a881825a2332b4d} [ 15 ms] [default] [exhibition_service] [rows:0  ] SHOW FULL COLUMNS FROM `t_file`
+Error: Error 1049 (42000): Unknown database 'exhibition_service' 
+Stack:
+1.  ExhibitionService/internal/logics.(*file).Create
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/logics/file.go:40
+2.  ExhibitionService/internal/service.(*fileService).PreUploadFile
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/service/file.go:33
+3.  main.CORS
+    /home/yyboo/platform/IUQT/ExhibitionService/main.go:46
+
+2025-10-17T15:42:37.770+08:00 [ERRO] {ed7c0da275376f185a881825a2332b4d} [ 15 ms] [default] [exhibition_service] [rows:0  ] SHOW FULL COLUMNS FROM `t_file`
+Error: Error 1049 (42000): Unknown database 'exhibition_service' 
+Stack:
+1.  ExhibitionService/internal/logics.(*file).Create
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/logics/file.go:40
+2.  ExhibitionService/internal/service.(*fileService).PreUploadFile
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/service/file.go:33
+3.  main.CORS
+    /home/yyboo/platform/IUQT/ExhibitionService/main.go:46
+
+2025-10-17T15:42:37.786+08:00 [ERRO] {ed7c0da275376f185a881825a2332b4d} [ 15 ms] [default] [exhibition_service] [rows:0  ] SHOW FULL COLUMNS FROM `t_file`
+Error: Error 1049 (42000): Unknown database 'exhibition_service' 
+Stack:
+1.  ExhibitionService/internal/logics.(*file).Create
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/logics/file.go:40
+2.  ExhibitionService/internal/service.(*fileService).PreUploadFile
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/service/file.go:33
+3.  main.CORS
+    /home/yyboo/platform/IUQT/ExhibitionService/main.go:46
+
+2025-10-17T15:42:45.598+08:00 [ERRO] {877d087777376f1885d62a0d3d370f37} [ 13 ms] [default] [exhibition_service] [rows:0  ] SHOW FULL COLUMNS FROM `t_file`
+Error: Error 1049 (42000): Unknown database 'exhibition_service' 
+Stack:
+1.  ExhibitionService/internal/logics.(*file).Create
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/logics/file.go:40
+2.  ExhibitionService/internal/service.(*fileService).PreUploadFile
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/service/file.go:33
+3.  main.CORS
+    /home/yyboo/platform/IUQT/ExhibitionService/main.go:46
+
+2025-10-17T15:42:45.614+08:00 [ERRO] {877d087777376f1885d62a0d3d370f37} [ 15 ms] [default] [exhibition_service] [rows:0  ] SHOW FULL COLUMNS FROM `t_file`
+Error: Error 1049 (42000): Unknown database 'exhibition_service' 
+Stack:
+1.  ExhibitionService/internal/logics.(*file).Create
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/logics/file.go:40
+2.  ExhibitionService/internal/service.(*fileService).PreUploadFile
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/service/file.go:33
+3.  main.CORS
+    /home/yyboo/platform/IUQT/ExhibitionService/main.go:46
+
+2025-10-17T15:42:45.629+08:00 [ERRO] {877d087777376f1885d62a0d3d370f37} [ 15 ms] [default] [exhibition_service] [rows:0  ] SHOW FULL COLUMNS FROM `t_file`
+Error: Error 1049 (42000): Unknown database 'exhibition_service' 
+Stack:
+1.  ExhibitionService/internal/logics.(*file).Create
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/logics/file.go:40
+2.  ExhibitionService/internal/service.(*fileService).PreUploadFile
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/service/file.go:33
+3.  main.CORS
+    /home/yyboo/platform/IUQT/ExhibitionService/main.go:46
+
+2025-10-17T15:42:45.646+08:00 [ERRO] {877d087777376f1885d62a0d3d370f37} [ 15 ms] [default] [exhibition_service] [rows:0  ] SHOW FULL COLUMNS FROM `t_file`
+Error: Error 1049 (42000): Unknown database 'exhibition_service' 
+Stack:
+1.  ExhibitionService/internal/logics.(*file).Create
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/logics/file.go:40
+2.  ExhibitionService/internal/service.(*fileService).PreUploadFile
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/service/file.go:33
+3.  main.CORS
+    /home/yyboo/platform/IUQT/ExhibitionService/main.go:46
+
+2025-10-17T15:43:20.725+08:00 [DEBU] {344fbda47f376f1817d8fa469ff1fd45} [  8 ms] [default] [exhibition_service] [rows:9  ] SHOW FULL COLUMNS FROM `t_file`
+2025-10-17T15:43:20.726+08:00 [ERRO] {344fbda47f376f1817d8fa469ff1fd45} [  0 ms] [default] [exhibition_service] [rows:0  ] INSERT INTO `t_file`(`file_id`,`file_name`,`file_link`,`status`,`create_time`,`update_time`) VALUES('3dec5490-f1e4-4c38-a438-49c01b1bf6e5','honor.jpg','http://47.109.79.103:7001/public-bucket/honor_20251017154320_f3dad405.jpg',0,1760687000,1760687000) 
+Error: Error 1364 (HY000): Field 'type' doesn't have a default value 
+Stack:
+1.  ExhibitionService/internal/logics.(*file).Create
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/logics/file.go:40
+2.  ExhibitionService/internal/service.(*fileService).PreUploadFile
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/service/file.go:33
+3.  main.CORS
+    /home/yyboo/platform/IUQT/ExhibitionService/main.go:46
+
+2025-10-17T15:45:36.924+08:00 [DEBU] {9e26e35a9f376f1818d8fa46db9c3210} [  7 ms] [default] [exhibition_service] [rows:1  ] INSERT INTO `t_file`(`file_id`,`file_name`,`file_link`,`status`,`create_time`,`update_time`) VALUES('ef429f91-86bf-46e3-a3bf-0df74ed48b34','honor.jpg','http://47.109.79.103:7001/public-bucket/honor_20251017154536_b6f30f8d.jpg',0,1760687136,1760687136) 
+2025-10-17T15:52:07.248+08:00 [ERRO] {2999da3cfa376f1819d8fa46b6c38308} [  4 ms] [default] [exhibition_service] [rows:0  ] UPDATE `t_file` SET `status`=1,`update_time`=1760687527 WHERE `id`='ef429f91-86bf-46e3-a3bf-0df74ed48b34'
+Error: Error 1292 (22007): Truncated incorrect INTEGER value: 'ef429f91-86bf-46e3-a3bf-0df74ed48b34' 
+Stack:
+1.  ExhibitionService/internal/logics.(*file).UpdateFileStatus
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/logics/file.go:51
+2.  ExhibitionService/internal/service.(*fileService).ReportFileUploadResult
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/service/file.go:47
+3.  main.CORS
+    /home/yyboo/platform/IUQT/ExhibitionService/main.go:46
+
+2025-10-17T15:53:16.073+08:00 [DEBU] {4fe717430a386f1863e6893f23ec75f6} [  9 ms] [default] [exhibition_service] [rows:9  ] SHOW FULL COLUMNS FROM `t_file`
+2025-10-17T15:53:16.077+08:00 [DEBU] {4fe717430a386f1863e6893f23ec75f6} [  4 ms] [default] [exhibition_service] [rows:1  ] UPDATE `t_file` SET `status`=1,`update_time`=1760687596 WHERE `file_id`='ef429f91-86bf-46e3-a3bf-0df74ed48b34'
+2025-10-17T16:01:14.606+08:00 [DEBU] {c988cbae79386f1864e6893f867b5331} [  6 ms] [default] [exhibition_service] [rows:2  ] SHOW TABLES
+2025-10-17T16:01:14.607+08:00 [DEBU] {c988cbae79386f1864e6893f867b5331} [  1 ms] [default] [exhibition_service] [rows:1  ] SELECT `id`,`company_id`,`type`,`file_id`,`file_name`,`file_link`,`status`,`create_time`,`update_time` FROM `t_file` WHERE `file_id`='ef429f91-86bf-46e3-a3bf-0df74ed48b34' LIMIT 1
+2025-10-17T16:01:14.607+08:00 [DEBU] {c988cbae79386f1864e6893f867b5331} [  0 ms] [default] [exhibition_service] [rows:0  ] [txid:1] BEGIN (IosolationLevel: Default, ReadOnly: false)
+2025-10-17T16:01:14.609+08:00 [DEBU] {c988cbae79386f1864e6893f867b5331} [  2 ms] [default] [exhibition_service] [rows:18 ] [txid:1] SHOW FULL COLUMNS FROM `t_company`
+2025-10-17T16:01:14.610+08:00 [ERRO] {c988cbae79386f1864e6893f867b5331} [  0 ms] [default] [exhibition_service] [rows:0  ] [txid:1] INSERT INTO `t_company`(`id`,`name`,`country`,`phone`,`email`,`address`,`description`,`business_license`,`social_credit_code`,`legal_person_name`,`legal_person_card_number`,`legal_person_photo_url`,`legal_person_phone`,`apply_time`,`create_time`,`update_time`) VALUES('9ff33dea-bb72-4737-9a8f-707ae827ea40','中国茶协会','中国','13900000000','13900000000@163.com','北京中关村','茶','ENDHHH','JJJJJ','张三','410000000000000000000','http://47.109.79.103:7001/public-bucket/honor_20251017154536_b6f30f8d.jpg','19190900000',1760688074,1760688074,1760688074) 
+Error: Error 1364 (HY000): Field 'status' doesn't have a default value 
+Stack:
+1.  ExhibitionService/internal/logics.(*company).CreateCompany
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/logics/company.go:57
+2.  ExhibitionService/internal/service.(*companyService).CreateCompany.func1
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/service/company.go:50
+3.  ExhibitionService/internal/service.(*companyService).CreateCompany
+    /home/yyboo/platform/IUQT/ExhibitionService/internal/service/company.go:49
+4.  main.CORS
+    /home/yyboo/platform/IUQT/ExhibitionService/main.go:46
+
+2025-10-17T16:01:14.610+08:00 [DEBU] {c988cbae79386f1864e6893f867b5331} [  0 ms] [default] [exhibition_service] [rows:0  ] [txid:1] ROLLBACK
+2025-10-17T16:02:44.459+08:00 [DEBU] {9c83469a8e386f18fe88c16df6943fb8} [  9 ms] [default] [exhibition_service] [rows:2  ] SHOW TABLES
+2025-10-17T16:02:44.461+08:00 [DEBU] {9c83469a8e386f18fe88c16df6943fb8} [  2 ms] [default] [exhibition_service] [rows:9  ] SHOW FULL COLUMNS FROM `t_file`
+2025-10-17T16:02:44.461+08:00 [DEBU] {9c83469a8e386f18fe88c16df6943fb8} [  0 ms] [default] [exhibition_service] [rows:1  ] SELECT `id`,`company_id`,`type`,`file_id`,`file_name`,`file_link`,`status`,`create_time`,`update_time` FROM `t_file` WHERE `file_id`='ef429f91-86bf-46e3-a3bf-0df74ed48b34' LIMIT 1
+2025-10-17T16:02:44.462+08:00 [DEBU] {9c83469a8e386f18fe88c16df6943fb8} [  0 ms] [default] [exhibition_service] [rows:0  ] [txid:1] BEGIN (IosolationLevel: Default, ReadOnly: false)
+2025-10-17T16:02:44.463+08:00 [DEBU] {9c83469a8e386f18fe88c16df6943fb8} [  1 ms] [default] [exhibition_service] [rows:18 ] [txid:1] SHOW FULL COLUMNS FROM `t_company`
+2025-10-17T16:02:44.464+08:00 [DEBU] {9c83469a8e386f18fe88c16df6943fb8} [  1 ms] [default] [exhibition_service] [rows:1  ] [txid:1] INSERT INTO `t_company`(`id`,`name`,`country`,`status`,`phone`,`email`,`address`,`description`,`business_license`,`social_credit_code`,`legal_person_name`,`legal_person_card_number`,`legal_person_photo_url`,`legal_person_phone`,`apply_time`,`create_time`,`update_time`) VALUES('aebab9c0-6feb-4d2e-9248-b1eaeea2f318','中国茶协会','中国',0,'13900000000','13900000000@163.com','北京中关村','茶','ENDHHH','JJJJJ','张三','410000000000000000000','http://47.109.79.103:7001/public-bucket/honor_20251017154536_b6f30f8d.jpg','19190900000',1760688164,1760688164,1760688164) 
+2025-10-17T16:02:44.465+08:00 [DEBU] {9c83469a8e386f18fe88c16df6943fb8} [  1 ms] [default] [exhibition_service] [rows:1  ] [txid:1] UPDATE `t_file` SET `company_id`='aebab9c0-6feb-4d2e-9248-b1eaeea2f318',`type`=1,`update_time`=1760688164 WHERE `file_id`='ef429f91-86bf-46e3-a3bf-0df74ed48b34'
+2025-10-17T16:02:44.469+08:00 [DEBU] {9c83469a8e386f18fe88c16df6943fb8} [  4 ms] [default] [exhibition_service] [rows:0  ] [txid:1] COMMIT
+2025-10-17T16:03:36.949+08:00 [DEBU] {b44136d39a386f18ff88c16d843b5e14} [  4 ms] [default] [exhibition_service] [rows:1  ] SELECT `id`,`company_id`,`type`,`file_id`,`file_name`,`file_link`,`status`,`create_time`,`update_time` FROM `t_file` WHERE `file_id`='ef429f91-86bf-46e3-a3bf-0df74ed48b34' LIMIT 1
+2025-10-17T16:03:36.950+08:00 [DEBU] {b44136d39a386f18ff88c16d843b5e14} [  1 ms] [default] [exhibition_service] [rows:0  ] [txid:2] BEGIN (IosolationLevel: Default, ReadOnly: false)
+2025-10-17T16:03:36.951+08:00 [DEBU] {b44136d39a386f18ff88c16d843b5e14} [  1 ms] [default] [exhibition_service] [rows:1  ] [txid:2] INSERT INTO `t_company`(`id`,`name`,`country`,`status`,`phone`,`email`,`address`,`description`,`business_license`,`social_credit_code`,`legal_person_name`,`legal_person_card_number`,`legal_person_photo_url`,`legal_person_phone`,`apply_time`,`create_time`,`update_time`) VALUES('27f63308-b037-4aac-8caa-5b189736eecd','中国茶协会','中国',0,'13900000000','13900000000@163.com','北京中关村','茶','ENDHHH','JJJJJ','张三','410000000000000000000','http://47.109.79.103:7001/public-bucket/honor_20251017154536_b6f30f8d.jpg','19190900000',1760688216,1760688216,1760688216) 
+2025-10-17T16:03:36.952+08:00 [DEBU] {b44136d39a386f18ff88c16d843b5e14} [  1 ms] [default] [exhibition_service] [rows:1  ] [txid:2] UPDATE `t_file` SET `company_id`='27f63308-b037-4aac-8caa-5b189736eecd',`type`=1,`update_time`=1760688216 WHERE `file_id`='ef429f91-86bf-46e3-a3bf-0df74ed48b34'
+2025-10-17T16:03:36.955+08:00 [DEBU] {b44136d39a386f18ff88c16d843b5e14} [  3 ms] [default] [exhibition_service] [rows:0  ] [txid:2] COMMIT
+2025-10-17T16:17:48.495+08:00 [DEBU] {4cc5851761396f180089c16d611e2190} [  1 ms] [default] [exhibition_service] [rows:1  ] SELECT COUNT(1) FROM `t_company` WHERE `status`=0
+2025-10-17T16:17:48.496+08:00 [DEBU] {4cc5851761396f180089c16d611e2190} [  0 ms] [default] [exhibition_service] [rows:2  ] SELECT `id`,`name`,`country`,`status`,`phone`,`email`,`address`,`description`,`business_license`,`social_credit_code`,`legal_person_name`,`legal_person_card_number`,`legal_person_photo_url`,`legal_person_phone`,`apply_time`,`approve_time`,`create_time`,`update_time` FROM `t_company` WHERE `status`=0 ORDER BY `create_time` DESC LIMIT 0,10
+2025-10-17T16:19:49.286+08:00 [DEBU] {376d3f377d396f180189c16ddc93725e} [  1 ms] [default] [exhibition_service] [rows:1  ] SELECT COUNT(1) FROM `t_company` WHERE `status`=0
+2025-10-17T16:19:49.287+08:00 [DEBU] {376d3f377d396f180189c16ddc93725e} [  0 ms] [default] [exhibition_service] [rows:1  ] SELECT `id`,`name`,`country`,`status`,`phone`,`email`,`address`,`description`,`business_license`,`social_credit_code`,`legal_person_name`,`legal_person_card_number`,`legal_person_photo_url`,`legal_person_phone`,`apply_time`,`approve_time`,`create_time`,`update_time` FROM `t_company` WHERE `status`=0 ORDER BY `create_time` DESC LIMIT 0,10

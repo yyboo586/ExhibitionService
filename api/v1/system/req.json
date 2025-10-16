@@ -1,0 +1,31 @@
+{
+    "name": "中国茶协会",
+    "website": "https://www.china-tea.com",
+    "contact_person_name": "张三",
+    "contact_person_phone": "13900000000",
+    "contact_person_email": "13900000000@163.com",
+    "description": "茶",
+    "company_info": {
+        "name": "中国茶叶有限公司",
+        "country": "中国",
+        "city": "杭州",
+        "address": "杭州西湖区",
+        "email": "13900000000@163.com",
+        "description": "茶叶公司",
+
+        "social_credit_code": "12345678901234567890",
+        "legal_person_name": "张三",
+        "legal_person_card_number": "12345678901234567890",
+        
+        "files": [
+            {
+                "file_id": "2d9b92da-4473-41a6-96c1-06862ae0df54",
+                "file_type": "Company Legal Person Photo"
+            },
+            {
+                "file_id": "88c75852-cde9-4aee-a7d8-de8b4b565450",
+                "file_type": "Company License"
+            }
+        ]
+    }
+}
