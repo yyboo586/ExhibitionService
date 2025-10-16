@@ -1,0 +1,34 @@
+server:
+  name: "exhibition-service"
+  address: "0.0.0.0:9850"
+  dumpRouterMap: true
+  routeOverWrite: true
+  openapiPath: "/api.json"
+  swaggerPath: "/swagger"
+  NameToUriType: 3
+  maxHeaderBytes: "20KB"
+  clientMaxBodySize: "50MB"
+  thirdService:
+    adminService: "http://127.0.0.1:9900"
+    fileEngineService: "http://127.0.0.1:9860"
+
+logger:
+  level: "debug"
+  stdout: true
+  path: "./resource/log/server"
+  logStdout: true # 日志是否输出到终端。默认为true
+  errorStack: true # 当Server捕获到异常时是否记录堆栈信息到日志中。默认为true
+  errorLogEnabled: true # 是否记录异常日志信息到日志中。默认为true
+  errorLogPattern: "error-{Ymd}.log" # 异常错误日志文件格式。默认为"error-{Ymd}.log"
+  accessLogEnabled: true # 是否记录访问日志。默认为false
+  accessLogPattern: "access-{Ymd}.log" # 访问日志文件格式。默认为"access-{Ymd}.log"
+
+database:
+  logger:
+    level: "all"
+    stdout: true
+    path: "./resource/log/sql"
+  default:
+    link: "mysql:root:12345678@tcp(127.0.0.1:3306)/exhibition_service"
+    debug: true
+

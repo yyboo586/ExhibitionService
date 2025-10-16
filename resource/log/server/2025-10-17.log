@@ -1,0 +1,68 @@
+2025-10-17T15:37:13.637+08:00 [DEBU] {6918b72e2a376f189359ec2dab2d11b3} http_client.go:64: ------------------------------------------------------------------------------------------------
+2025-10-17T15:37:13.637+08:00 [DEBU] {6918b72e2a376f189359ec2dab2d11b3} http_client.go:65: Request URL: http://127.0.0.1:9860/api/v1/file-engine/files/upload-tokens
+2025-10-17T15:37:13.637+08:00 [DEBU] {6918b72e2a376f189359ec2dab2d11b3} http_client.go:66: Request Header: map[]
+2025-10-17T15:37:13.637+08:00 [DEBU] {6918b72e2a376f189359ec2dab2d11b3} http_client.go:67: Request Body: {"file":{"bucket_id":"public-bucket","content_type":"jpg","filename":"honor.jpg","size":75303}}
+2025-10-17T15:38:07.228+08:00 [DEBU] {ff0204a936376f189459ec2d6edf3cd9} http_client.go:64: ------------------------------------------------------------------------------------------------
+2025-10-17T15:38:07.228+08:00 [DEBU] {ff0204a936376f189459ec2d6edf3cd9} http_client.go:65: Request URL: http://127.0.0.1:9860/api/v1/file-engine/files/upload-tokens
+2025-10-17T15:38:07.228+08:00 [DEBU] {ff0204a936376f189459ec2d6edf3cd9} http_client.go:66: Request Header: map[]
+2025-10-17T15:38:07.228+08:00 [DEBU] {ff0204a936376f189459ec2d6edf3cd9} http_client.go:67: Request Body: {"file":{"bucket_id":"public-bucket","content_type":"jpg","filename":"honor.jpg","size":75303}}
+2025-10-17T15:38:07.383+08:00 [DEBU] {ff0204a936376f189459ec2d6edf3cd9} http_client.go:78: Response Status: 200
+2025-10-17T15:38:07.383+08:00 [DEBU] {ff0204a936376f189459ec2d6edf3cd9} http_client.go:79: Response Header: map[]
+2025-10-17T15:38:07.383+08:00 [DEBU] {ff0204a936376f189459ec2d6edf3cd9} http_client.go:80: Response Body: {"id":"426256c2-acde-4f10-a665-33d0213c4557","original_name":"honor.jpg","visit_url":"http://47.109.79.103:7001/public-bucket/honor_20251017153807_382051e6.jpg","upload_url":"http://47.109.79.103:7001/public-bucket/honor_20251017153807_382051e6.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256\u0026X-Amz-Credential=admin/20251017/us-east-1/s3/aws4_request\u0026X-Amz-Date=20251017T073807Z\u0026X-Amz-Expires=1800\u0026X-Amz-SignedHeaders=host\u0026X-Amz-Signature=e4b4c5efa37fad08f139dd8ed60734a286c8c567ee5f33c68fcac5bb70bf6219","expires_at":"2025-10-17T16:08:07.383494637+08:00","expires_in":1800}
+2025-10-17T15:38:07.383+08:00 [DEBU] {ff0204a936376f189459ec2d6edf3cd9} http_client.go:81: ------------------------------------------------------------------------------------------------
+2025-10-17T15:39:46.006+08:00 [DEBU] {3e0295a84d376f18598818259096604a} http_client.go:64: ------------------------------------------------------------------------------------------------
+2025-10-17T15:39:46.006+08:00 [DEBU] {3e0295a84d376f18598818259096604a} http_client.go:65: Request URL: http://127.0.0.1:9860/api/v1/file-engine/files/upload-tokens
+2025-10-17T15:39:46.006+08:00 [DEBU] {3e0295a84d376f18598818259096604a} http_client.go:66: Request Header: map[]
+2025-10-17T15:39:46.006+08:00 [DEBU] {3e0295a84d376f18598818259096604a} http_client.go:67: Request Body: {"file":{"bucket_id":"public-bucket","content_type":"jpg","filename":"honor.jpg","size":75303}}
+2025-10-17T15:39:46.033+08:00 [DEBU] {3e0295a84d376f18598818259096604a} http_client.go:78: Response Status: 200
+2025-10-17T15:39:46.033+08:00 [DEBU] {3e0295a84d376f18598818259096604a} http_client.go:79: Response Header: map[]
+2025-10-17T15:39:46.033+08:00 [DEBU] {3e0295a84d376f18598818259096604a} http_client.go:80: Response Body: {"id":"d2876ee9-f907-4937-8771-2201288ec31e","original_name":"honor.jpg","visit_url":"http://47.109.79.103:7001/public-bucket/honor_20251017153946_f1a325cb.jpg","upload_url":"http://47.109.79.103:7001/public-bucket/honor_20251017153946_f1a325cb.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256\u0026X-Amz-Credential=admin/20251017/us-east-1/s3/aws4_request\u0026X-Amz-Date=20251017T073946Z\u0026X-Amz-Expires=1800\u0026X-Amz-SignedHeaders=host\u0026X-Amz-Signature=153c20b54c835daeaa87f2a175e01c3b566acef4385800ec161dd4b18fbfe8f9","expires_at":"2025-10-17T16:09:46.033068107+08:00","expires_in":1800}
+2025-10-17T15:39:46.033+08:00 [DEBU] {3e0295a84d376f18598818259096604a} http_client.go:81: ------------------------------------------------------------------------------------------------
+2025-10-17T15:42:37.694+08:00 [DEBU] {ed7c0da275376f185a881825a2332b4d} http_client.go:64: ------------------------------------------------------------------------------------------------
+2025-10-17T15:42:37.694+08:00 [DEBU] {ed7c0da275376f185a881825a2332b4d} http_client.go:65: Request URL: http://127.0.0.1:9860/api/v1/file-engine/files/upload-tokens
+2025-10-17T15:42:37.694+08:00 [DEBU] {ed7c0da275376f185a881825a2332b4d} http_client.go:66: Request Header: map[]
+2025-10-17T15:42:37.694+08:00 [DEBU] {ed7c0da275376f185a881825a2332b4d} http_client.go:67: Request Body: {"file":{"bucket_id":"public-bucket","content_type":"jpg","filename":"honor.jpg","size":75303}}
+2025-10-17T15:42:37.722+08:00 [DEBU] {ed7c0da275376f185a881825a2332b4d} http_client.go:78: Response Status: 200
+2025-10-17T15:42:37.722+08:00 [DEBU] {ed7c0da275376f185a881825a2332b4d} http_client.go:79: Response Header: map[]
+2025-10-17T15:42:37.722+08:00 [DEBU] {ed7c0da275376f185a881825a2332b4d} http_client.go:80: Response Body: {"id":"01f974f4-347c-44c1-9680-ceb3522bae6b","original_name":"honor.jpg","visit_url":"http://47.109.79.103:7001/public-bucket/honor_20251017154237_9b1ec1dd.jpg","upload_url":"http://47.109.79.103:7001/public-bucket/honor_20251017154237_9b1ec1dd.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256\u0026X-Amz-Credential=admin/20251017/us-east-1/s3/aws4_request\u0026X-Amz-Date=20251017T074237Z\u0026X-Amz-Expires=1800\u0026X-Amz-SignedHeaders=host\u0026X-Amz-Signature=7a0bbf156e0fcc04bed0db94dbb72510280d006d705e95b4fe1e52b209f94c1a","expires_at":"2025-10-17T16:12:37.721780908+08:00","expires_in":1800}
+2025-10-17T15:42:37.722+08:00 [DEBU] {ed7c0da275376f185a881825a2332b4d} http_client.go:81: ------------------------------------------------------------------------------------------------
+2025-10-17T15:42:45.563+08:00 [DEBU] {877d087777376f1885d62a0d3d370f37} http_client.go:64: ------------------------------------------------------------------------------------------------
+2025-10-17T15:42:45.563+08:00 [DEBU] {877d087777376f1885d62a0d3d370f37} http_client.go:65: Request URL: http://127.0.0.1:9860/api/v1/file-engine/files/upload-tokens
+2025-10-17T15:42:45.563+08:00 [DEBU] {877d087777376f1885d62a0d3d370f37} http_client.go:66: Request Header: map[]
+2025-10-17T15:42:45.563+08:00 [DEBU] {877d087777376f1885d62a0d3d370f37} http_client.go:67: Request Body: {"file":{"bucket_id":"public-bucket","content_type":"jpg","filename":"honor.jpg","size":75303}}
+2025-10-17T15:42:45.584+08:00 [DEBU] {877d087777376f1885d62a0d3d370f37} http_client.go:78: Response Status: 200
+2025-10-17T15:42:45.584+08:00 [DEBU] {877d087777376f1885d62a0d3d370f37} http_client.go:79: Response Header: map[]
+2025-10-17T15:42:45.584+08:00 [DEBU] {877d087777376f1885d62a0d3d370f37} http_client.go:80: Response Body: {"id":"e5a388d5-cfbd-4650-ad5e-f07d02f5cff7","original_name":"honor.jpg","visit_url":"http://47.109.79.103:7001/public-bucket/honor_20251017154245_0ae0918c.jpg","upload_url":"http://47.109.79.103:7001/public-bucket/honor_20251017154245_0ae0918c.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256\u0026X-Amz-Credential=admin/20251017/us-east-1/s3/aws4_request\u0026X-Amz-Date=20251017T074245Z\u0026X-Amz-Expires=1800\u0026X-Amz-SignedHeaders=host\u0026X-Amz-Signature=fcb6a0b62022a10004538e9d2ba29a5813c8df7f32a09b3a5287f3bf8b3d4f31","expires_at":"2025-10-17T16:12:45.583913842+08:00","expires_in":1800}
+2025-10-17T15:42:45.584+08:00 [DEBU] {877d087777376f1885d62a0d3d370f37} http_client.go:81: ------------------------------------------------------------------------------------------------
+2025-10-17T15:43:20.689+08:00 [DEBU] {344fbda47f376f1817d8fa469ff1fd45} http_client.go:64: ------------------------------------------------------------------------------------------------
+2025-10-17T15:43:20.689+08:00 [DEBU] {344fbda47f376f1817d8fa469ff1fd45} http_client.go:65: Request URL: http://127.0.0.1:9860/api/v1/file-engine/files/upload-tokens
+2025-10-17T15:43:20.689+08:00 [DEBU] {344fbda47f376f1817d8fa469ff1fd45} http_client.go:66: Request Header: map[]
+2025-10-17T15:43:20.689+08:00 [DEBU] {344fbda47f376f1817d8fa469ff1fd45} http_client.go:67: Request Body: {"file":{"bucket_id":"public-bucket","content_type":"jpg","filename":"honor.jpg","size":75303}}
+2025-10-17T15:43:20.715+08:00 [DEBU] {344fbda47f376f1817d8fa469ff1fd45} http_client.go:78: Response Status: 200
+2025-10-17T15:43:20.715+08:00 [DEBU] {344fbda47f376f1817d8fa469ff1fd45} http_client.go:79: Response Header: map[]
+2025-10-17T15:43:20.715+08:00 [DEBU] {344fbda47f376f1817d8fa469ff1fd45} http_client.go:80: Response Body: {"id":"3dec5490-f1e4-4c38-a438-49c01b1bf6e5","original_name":"honor.jpg","visit_url":"http://47.109.79.103:7001/public-bucket/honor_20251017154320_f3dad405.jpg","upload_url":"http://47.109.79.103:7001/public-bucket/honor_20251017154320_f3dad405.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256\u0026X-Amz-Credential=admin/20251017/us-east-1/s3/aws4_request\u0026X-Amz-Date=20251017T074320Z\u0026X-Amz-Expires=1800\u0026X-Amz-SignedHeaders=host\u0026X-Amz-Signature=c7a762930719645d1d42cdd65bc15d648ac506f833d87ad475e51f473c05a1e9","expires_at":"2025-10-17T16:13:20.715361905+08:00","expires_in":1800}
+2025-10-17T15:43:20.715+08:00 [DEBU] {344fbda47f376f1817d8fa469ff1fd45} http_client.go:81: ------------------------------------------------------------------------------------------------
+2025-10-17T15:45:36.889+08:00 [DEBU] {9e26e35a9f376f1818d8fa46db9c3210} http_client.go:64: ------------------------------------------------------------------------------------------------
+2025-10-17T15:45:36.889+08:00 [DEBU] {9e26e35a9f376f1818d8fa46db9c3210} http_client.go:65: Request URL: http://127.0.0.1:9860/api/v1/file-engine/files/upload-tokens
+2025-10-17T15:45:36.889+08:00 [DEBU] {9e26e35a9f376f1818d8fa46db9c3210} http_client.go:66: Request Header: map[]
+2025-10-17T15:45:36.889+08:00 [DEBU] {9e26e35a9f376f1818d8fa46db9c3210} http_client.go:67: Request Body: {"file":{"bucket_id":"public-bucket","content_type":"jpg","filename":"honor.jpg","size":75303}}
+2025-10-17T15:45:36.917+08:00 [DEBU] {9e26e35a9f376f1818d8fa46db9c3210} http_client.go:78: Response Status: 200
+2025-10-17T15:45:36.917+08:00 [DEBU] {9e26e35a9f376f1818d8fa46db9c3210} http_client.go:79: Response Header: map[]
+2025-10-17T15:45:36.917+08:00 [DEBU] {9e26e35a9f376f1818d8fa46db9c3210} http_client.go:80: Response Body: {"id":"ef429f91-86bf-46e3-a3bf-0df74ed48b34","original_name":"honor.jpg","visit_url":"http://47.109.79.103:7001/public-bucket/honor_20251017154536_b6f30f8d.jpg","upload_url":"http://47.109.79.103:7001/public-bucket/honor_20251017154536_b6f30f8d.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256\u0026X-Amz-Credential=admin/20251017/us-east-1/s3/aws4_request\u0026X-Amz-Date=20251017T074536Z\u0026X-Amz-Expires=1800\u0026X-Amz-SignedHeaders=host\u0026X-Amz-Signature=25f475859002126badb69dcb830f4f86c92d5d2d5ea8f8c092920209fa2b19e6","expires_at":"2025-10-17T16:15:36.916773314+08:00","expires_in":1800}
+2025-10-17T15:45:36.917+08:00 [DEBU] {9e26e35a9f376f1818d8fa46db9c3210} http_client.go:81: ------------------------------------------------------------------------------------------------
+2025-10-17T15:52:07.227+08:00 [DEBU] {2999da3cfa376f1819d8fa46b6c38308} http_client.go:64: ------------------------------------------------------------------------------------------------
+2025-10-17T15:52:07.227+08:00 [DEBU] {2999da3cfa376f1819d8fa46b6c38308} http_client.go:65: Request URL: http://127.0.0.1:9860/api/v1/file-engine/files/ef429f91-86bf-46e3-a3bf-0df74ed48b34/status
+2025-10-17T15:52:07.227+08:00 [DEBU] {2999da3cfa376f1819d8fa46b6c38308} http_client.go:66: Request Header: map[]
+2025-10-17T15:52:07.227+08:00 [DEBU] {2999da3cfa376f1819d8fa46b6c38308} http_client.go:67: Request Body: {"success":true}
+2025-10-17T15:52:07.243+08:00 [DEBU] {2999da3cfa376f1819d8fa46b6c38308} http_client.go:78: Response Status: 200
+2025-10-17T15:52:07.243+08:00 [DEBU] {2999da3cfa376f1819d8fa46b6c38308} http_client.go:79: Response Header: map[]
+2025-10-17T15:52:07.243+08:00 [DEBU] {2999da3cfa376f1819d8fa46b6c38308} http_client.go:80: Response Body: 
+2025-10-17T15:52:07.243+08:00 [DEBU] {2999da3cfa376f1819d8fa46b6c38308} http_client.go:81: ------------------------------------------------------------------------------------------------
+2025-10-17T15:53:16.051+08:00 [DEBU] {4fe717430a386f1863e6893f23ec75f6} http_client.go:64: ------------------------------------------------------------------------------------------------
+2025-10-17T15:53:16.051+08:00 [DEBU] {4fe717430a386f1863e6893f23ec75f6} http_client.go:65: Request URL: http://127.0.0.1:9860/api/v1/file-engine/files/ef429f91-86bf-46e3-a3bf-0df74ed48b34/status
+2025-10-17T15:53:16.051+08:00 [DEBU] {4fe717430a386f1863e6893f23ec75f6} http_client.go:66: Request Header: map[]
+2025-10-17T15:53:16.051+08:00 [DEBU] {4fe717430a386f1863e6893f23ec75f6} http_client.go:67: Request Body: {"success":true}
+2025-10-17T15:53:16.063+08:00 [DEBU] {4fe717430a386f1863e6893f23ec75f6} http_client.go:78: Response Status: 200
+2025-10-17T15:53:16.063+08:00 [DEBU] {4fe717430a386f1863e6893f23ec75f6} http_client.go:79: Response Header: map[]
+2025-10-17T15:53:16.063+08:00 [DEBU] {4fe717430a386f1863e6893f23ec75f6} http_client.go:80: Response Body: 
+2025-10-17T15:53:16.063+08:00 [DEBU] {4fe717430a386f1863e6893f23ec75f6} http_client.go:81: ------------------------------------------------------------------------------------------------
