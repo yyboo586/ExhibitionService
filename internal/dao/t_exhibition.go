@@ -11,3 +11,11 @@ var Exhibition = exhibitionDao{
 type exhibitionDao struct {
 	*internal.TExhibition
 }
+
+var ExOrganizer = exOrganizerDao{
+	internal.NewTExOrganizer(),
+}
+
+type exOrganizerDao struct {
+	*internal.TExOrganizer
+}

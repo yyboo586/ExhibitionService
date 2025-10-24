@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS `t_file` (
     `update_time` BIGINT(20) COMMENT '更新时间',
     PRIMARY KEY (`id`),
     KEY `idx_module_id_type` (`module`, `custom_id`, `type`),
-    UNIQUE KEY `idx_file_id` (`file_id`)
+    UNIQUE KEY `idx_file_id_status` (`file_id`, `status`)
 ) ENGINE=InnoDB COMMENT='文件表';
 
 CREATE TABLE IF NOT EXISTS `t_company` (
@@ -82,14 +82,14 @@ CREATE TABLE IF NOT EXISTS `t_merchant` (
 CREATE TABLE IF NOT EXISTS `t_exhibition` (
     `id` VARCHAR(40) NOT NULL COMMENT '展会ID',
     `title` VARCHAR(100) NOT NULL COMMENT '展会名称',
+    `website` VARCHAR(255) COMMENT '展会官网',
     `status` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '展会状态(0:筹备中、1:待审核、2:已批准、3:报名中、4:进行中、5:已结束、6:已取消)',
     `industry` VARCHAR(50) COMMENT '所属行业',
     `tags` TEXT COMMENT '展会标签',
-    `website` VARCHAR(255) COMMENT '展会官网',
-    `venue` VARCHAR(255) COMMENT '展会地点',
-    `venue_address` VARCHAR(255) COMMENT '展会详细地址',
     `country` VARCHAR(255) COMMENT '国家',
     `city` VARCHAR(255) COMMENT '城市',
+    `venue` VARCHAR(255) COMMENT '展会地点',
+    `venue_address` VARCHAR(255) COMMENT '展会详细地址',
     `description` TEXT COMMENT '展会详细描述',
     `version` BIGINT(20) NOT NULL DEFAULT 0 COMMENT '版本号',
 
@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS `t_exhibition` (
     PRIMARY KEY(`id`)
 ) ENGINE=InnoDB COMMENT='展会表';
 
-CREATE TABLE IF NOT EXISTS `t_exhibition_service_provider` (
+CREATE TABLE IF NOT EXISTS `t_exhibition_organizer` (
     `id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
     `exhibition_id` VARCHAR(40) NOT NULL COMMENT '展会ID',
     `service_provider_id` VARCHAR(40) NOT NULL COMMENT '服务提供商ID',

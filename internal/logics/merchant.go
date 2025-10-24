@@ -161,15 +161,13 @@ func (m *merchant) List(ctx context.Context, name string, pageReq *model.PageReq
 // ---------------私有方法--------------------------------
 // 检查文件是否上传成功
 func (m *merchant) checkFileUploadSuccess(ctx context.Context, files []*model.File) (err error) {
-	for _, v := range files {
-		fileInfo, err := m.fileDomain.Get(ctx, v.FileID)
-		if err != nil {
-			return err
-		}
-		err = m.fileDomain.IsUploadSuccess(ctx, fileInfo)
-		if err != nil {
-			return err
-		}
+	fileIDs := make([]string, len(files))
+	for i, v := range files {
+		fileIDs[i] = v.FileID
+	}
+	err = m.fileDomain.CheckFileUploadSuccess(ctx, fileIDs)
+	if err != nil {
+		return err
 	}
 	return nil
 }

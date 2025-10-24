@@ -14,47 +14,53 @@ type TExhibition struct {
 }
 
 type TExhibitionColumns struct {
-	ID                string // 展会ID
-	ServiceProviderID string // 服务提供商ID
-	Title             string // 展会标题
-	Status            string // 展会状态
-	Industry          string // 所属行业
-	Tags              string // 展会标签
-	Website           string // 展会官网
-	Venue             string // 展会地点
-	VenueAddress      string // 展会详细地址
-	Country           string // 国家
-	City              string // 城市
-	Description       string // 展会描述
-	RegistrationStart string // 报名开始时间
-	RegistrationEnd   string // 报名结束时间
-	StartTime         string // 展会开始时间
-	EndTime           string // 展会结束时间
-	Version           string // 版本号
-	CreateTime        string // 创建时间
-	UpdateTime        string // 更新时间
+	ID           string // 展会ID
+	Title        string // 展会标题
+	Website      string // 展会官网
+	Status       string // 展会状态
+	Industry     string // 所属行业
+	Tags         string // 展会标签
+	Country      string // 国家
+	City         string // 城市
+	Venue        string // 展会地点
+	VenueAddress string // 展会详细地址
+	Description  string // 展会描述
+	Version      string // 版本号
+
+	RegistrationStart string
+	RegistrationEnd   string
+	StartTime         string
+	EndTime           string
+
+	CreateTime          string
+	SubmitForReviewTime string
+	ApproveTime         string
+	UpdateTime          string
 }
 
 var exhibitionColumns = TExhibitionColumns{
-	ID:                "id",
-	ServiceProviderID: "service_provider_id",
-	Title:             "title",
-	Status:            "status",
-	Industry:          "industry",
-	Tags:              "tags",
-	Website:           "website",
-	Venue:             "venue",
-	VenueAddress:      "venue_address",
-	Country:           "country",
-	City:              "city",
-	Description:       "description",
+	ID:           "id",
+	Title:        "title",
+	Website:      "website",
+	Status:       "status",
+	Industry:     "industry",
+	Tags:         "tags",
+	Country:      "country",
+	City:         "city",
+	Venue:        "venue",
+	VenueAddress: "venue_address",
+	Description:  "description",
+	Version:      "version",
+
 	RegistrationStart: "registration_start",
 	RegistrationEnd:   "registration_end",
 	StartTime:         "start_time",
 	EndTime:           "end_time",
-	Version:           "version",
-	CreateTime:        "create_time",
-	UpdateTime:        "update_time",
+
+	CreateTime:          "create_time",
+	SubmitForReviewTime: "submit_for_review_time",
+	ApproveTime:         "approve_time",
+	UpdateTime:          "update_time",
 }
 
 func NewTExhibition() *TExhibition {

@@ -21,16 +21,30 @@ var (
 	exhibitionDomain *exhibition
 )
 
-type exhibition struct{}
+type exhibition struct {
+	fileDomain interfaces.IFile
+}
 
-func NewExhibition() interfaces.IExhibition {
+func NewExhibition(fileDomain interfaces.IFile) interfaces.IExhibition {
 	exhibitionOnce.Do(func() {
-		exhibitionDomain = &exhibition{}
+		exhibitionDomain = &exhibition{
+			fileDomain: fileDomain,
+		}
 	})
 	return exhibitionDomain
 }
 
 func (e *exhibition) Create(ctx context.Context, tx gdb.TX, in *model.Exhibition) (id string, err error) {
+	// 检查文件是否上传成功
+	fileIDs := make([]string, len(in.Files))
+	for i, v := range in.Files {
+		fileIDs[i] = v.FileID
+	}
+	err = e.fileDomain.CheckFileUploadSuccess(ctx, fileIDs)
+	if err != nil {
+		return "", gerror.Newf("create exhibition failed, file upload failed, err: %s", err.Error())
+	}
+
 	// 时间逻辑校验
 	err = validateExhibitionTime(in.RegistrationStart, in.RegistrationEnd, in.StartTime, in.EndTime)
 	if err != nil {
@@ -40,25 +54,25 @@ func (e *exhibition) Create(ctx context.Context, tx gdb.TX, in *model.Exhibition
 	id = uuid.New().String()
 	// 创建展会
 	data := map[string]any{
-		dao.Exhibition.Columns().ID:                id,
-		dao.Exhibition.Columns().ServiceProviderID: in.ServiceProviderID,
-		dao.Exhibition.Columns().Title:             in.Title,
-		dao.Exhibition.Columns().Status:            int(model.ExhibitionStatusPreparing),
-		dao.Exhibition.Columns().Industry:          in.Industry,
-		dao.Exhibition.Columns().Tags:              in.Tags,
-		dao.Exhibition.Columns().Website:           in.Website,
-		dao.Exhibition.Columns().Venue:             in.Venue,
-		dao.Exhibition.Columns().VenueAddress:      in.VenueAddress,
-		dao.Exhibition.Columns().Country:           in.Country,
-		dao.Exhibition.Columns().City:              in.City,
-		dao.Exhibition.Columns().Description:       in.Description,
+		dao.Exhibition.Columns().ID:           id,
+		dao.Exhibition.Columns().Title:        in.Title,
+		dao.Exhibition.Columns().Website:      in.Website,
+		dao.Exhibition.Columns().Status:       int(model.ExhibitionStatusPreparing),
+		dao.Exhibition.Columns().Industry:     in.Industry,
+		dao.Exhibition.Columns().Tags:         in.Tags,
+		dao.Exhibition.Columns().Country:      in.Country,
+		dao.Exhibition.Columns().City:         in.City,
+		dao.Exhibition.Columns().Venue:        in.Venue,
+		dao.Exhibition.Columns().VenueAddress: in.VenueAddress,
+		dao.Exhibition.Columns().Description:  in.Description,
+
 		dao.Exhibition.Columns().RegistrationStart: in.RegistrationStart.Unix(),
 		dao.Exhibition.Columns().RegistrationEnd:   in.RegistrationEnd.Unix(),
 		dao.Exhibition.Columns().StartTime:         in.StartTime.Unix(),
 		dao.Exhibition.Columns().EndTime:           in.EndTime.Unix(),
-		dao.Exhibition.Columns().Version:           1,
-		dao.Exhibition.Columns().CreateTime:        time.Now().Unix(),
-		dao.Exhibition.Columns().UpdateTime:        time.Now().Unix(),
+
+		dao.Exhibition.Columns().CreateTime: time.Now().Unix(),
+		dao.Exhibition.Columns().UpdateTime: time.Now().Unix(),
 	}
 
 	_, err = dao.Exhibition.Ctx(ctx).TX(tx).Data(data).Insert()
@@ -67,6 +81,11 @@ func (e *exhibition) Create(ctx context.Context, tx gdb.TX, in *model.Exhibition
 			return "", gerror.Newf("create exhibition failed, exhibition name already exists, name: %s", in.Title)
 		}
 		return "", gerror.Newf("create exhibition failed, err: %s", err.Error())
+	}
+
+	err = e.createFileRelation(ctx, tx, id, in.Files)
+	if err != nil {
+		return "", gerror.Newf("create exhibition failed, create file relation failed, err: %s", err.Error())
 	}
 
 	return id, nil
@@ -82,73 +101,17 @@ func (e *exhibition) GetExhibition(ctx context.Context, id string) (out *model.E
 		return nil, gerror.Newf("get exhibition failed, err: %s", err.Error())
 	}
 
-	return model.ConvertExhibition(&te), nil
-}
-
-func (e *exhibition) UpdateExhibition(ctx context.Context, in *model.Exhibition) (err error) {
-	data := map[string]any{}
-	if in.Title != "" {
-		data[dao.Exhibition.Columns().Title] = in.Title
-	}
-	if in.Industry != "" {
-		data[dao.Exhibition.Columns().Industry] = in.Industry
-	}
-	if in.Tags != "" {
-		data[dao.Exhibition.Columns().Tags] = in.Tags
-	}
-	if in.Website != "" {
-		data[dao.Exhibition.Columns().Website] = in.Website
-	}
-	if in.Venue != "" {
-		data[dao.Exhibition.Columns().Venue] = in.Venue
-	}
-	if in.VenueAddress != "" {
-		data[dao.Exhibition.Columns().VenueAddress] = in.VenueAddress
-	}
-	if in.Country != "" {
-		data[dao.Exhibition.Columns().Country] = in.Country
-	}
-	if in.City != "" {
-		data[dao.Exhibition.Columns().City] = in.City
-	}
-	if in.Description != "" {
-		data[dao.Exhibition.Columns().Description] = in.Description
-	}
-	if !in.RegistrationStart.IsZero() {
-		data[dao.Exhibition.Columns().RegistrationStart] = in.RegistrationStart.Unix()
-	}
-	if !in.RegistrationEnd.IsZero() {
-		data[dao.Exhibition.Columns().RegistrationEnd] = in.RegistrationEnd.Unix()
-	}
-	if !in.StartTime.IsZero() {
-		data[dao.Exhibition.Columns().StartTime] = in.StartTime.Unix()
-	}
-	if !in.EndTime.IsZero() {
-		data[dao.Exhibition.Columns().EndTime] = in.EndTime.Unix()
-	}
-
-	if len(data) == 0 {
-		return nil
-	}
-
-	data[dao.Exhibition.Columns().UpdateTime] = time.Now().Unix()
-	_, err = dao.Exhibition.Ctx(ctx).Data(data).Where(dao.Exhibition.Columns().ID, in.ID).Update()
+	out = model.ConvertExhibition(&te)
+	out.Files, err = e.getFiles(ctx, id)
 	if err != nil {
-		if strings.Contains(err.Error(), "Duplicate entry 'name'") {
-			return gerror.Newf("update exhibition failed, exhibition name already exists, name: %s", in.Title)
-		}
-		return gerror.Newf("update exhibition failed, err: %s", err.Error())
+		return nil, err
 	}
-
-	return nil
-}
-
-func (e *exhibition) DeleteExhibition(ctx context.Context, id string) (err error) {
-	_, err = dao.Exhibition.Ctx(ctx).Where(dao.Exhibition.Columns().ID, id).Delete()
+	out.Organizers, err = e.getOrganizers(ctx, id)
 	if err != nil {
-		return gerror.Newf("delete exhibition failed, err: %s", err.Error())
+		return nil, gerror.Newf("get exhibition failed, get organizers failed, err: %s", err.Error())
 	}
-	return nil
+
+	return out, nil
 }
 
 func (e *exhibition) ListExhibitions(ctx context.Context, name string, pageReq *model.PageReq) (out []*model.Exhibition, pageRes *model.PageRes, err error) {
@@ -176,7 +139,17 @@ func (e *exhibition) ListExhibitions(ctx context.Context, name string, pageReq *
 	}
 
 	for _, r := range te {
-		out = append(out, model.ConvertExhibition(r))
+		exhibition := model.ConvertExhibition(r)
+		exhibition.Files, err = e.getFiles(ctx, exhibition.ID)
+		if err != nil {
+			return nil, nil, gerror.Newf("list exhibitions failed, get files failed, err: %s", err.Error())
+		}
+
+		exhibition.Organizers, err = e.getOrganizers(ctx, exhibition.ID)
+		if err != nil {
+			return nil, nil, gerror.Newf("list exhibitions failed, get organizers failed, err: %s", err.Error())
+		}
+		out = append(out, exhibition)
 	}
 
 	pageRes = &model.PageRes{
@@ -219,6 +192,39 @@ func (e *exhibition) GetPendingList(ctx context.Context, pageReq *model.PageReq)
 }
 
 // 私有方法
+// 获取展会主办方
+func (e *exhibition) getOrganizers(ctx context.Context, exhibitionID string) (organizers []*model.ExOrganizer, err error) {
+	var teo []*entity.TExOrganizer
+	err = dao.ExOrganizer.Ctx(ctx).Where(dao.ExOrganizer.Columns().ExhibitionID, exhibitionID).Scan(&teo)
+	if err != nil {
+		return nil, gerror.Newf("get organizers failed, err: %s", err.Error())
+	}
+	for _, v := range teo {
+		organizers = append(organizers, model.ConvertExOrganizer(v))
+	}
+	return organizers, nil
+}
+
+// 获取展会文件
+func (e *exhibition) getFiles(ctx context.Context, exhibitionID string) (files []*model.File, err error) {
+	files, err = e.fileDomain.ListByModuleAndCustomID(ctx, model.FileModuleExhibition, exhibitionID)
+	if err != nil {
+		return nil, err
+	}
+	return files, nil
+}
+
+// 建立 文件 - 展会 关联
+func (e *exhibition) createFileRelation(ctx context.Context, tx gdb.TX, exhibitionID string, files []*model.File) (err error) {
+	for _, v := range files {
+		err = e.fileDomain.UpdateCustomInfo(ctx, tx, v.FileID, model.FileModuleExhibition, exhibitionID, v.Type)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 /*
 报名开始时间 > 报名结束时间	"registration start time must be before registration end time"
 报名结束时间 >= 展会开始时间	"registration end time must be strictly before exhibition start time"
@@ -249,24 +255,6 @@ func validateExhibitionTime(registrationStart time.Time, registrationEnd time.Ti
 	// 4. 报名开始时间不能小于当前时间
 	if registrationStart.Before(now) {
 		return gerror.New("registration start time must be after current time")
-	}
-
-	// 5. 报名开始时间必须至少在当前时间30分钟后
-	minRegistrationStart := now.Add(30 * time.Minute)
-	if registrationStart.Before(minRegistrationStart) {
-		return gerror.New("registration start time must be at least 30 minutes from now")
-	}
-
-	// 6. 展会开始时间必须在报名结束时间7天内
-	maxStartTime := registrationEnd.Add(7 * 24 * time.Hour)
-	if startTime.After(maxStartTime) {
-		return gerror.New("exhibition must start within 7 days after registration ends")
-	}
-
-	// 7. 展会持续时间不能超过30天
-	maxEndTime := startTime.Add(30 * 24 * time.Hour)
-	if endTime.After(maxEndTime) {
-		return gerror.New("exhibition duration cannot exceed 30 days")
 	}
 
 	return nil

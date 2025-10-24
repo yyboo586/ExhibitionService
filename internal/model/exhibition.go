@@ -51,85 +51,112 @@ func GetExhibitionStatusText(status ExhibitionStatus) string {
 	}
 }
 
-type Exhibition struct {
-	ID                string           `json:"id"`
-	ServiceProviderID string           `json:"service_provider_id"`
-	Title             string           `json:"title"`
-	Status            ExhibitionStatus `json:"status"`
-	Industry          string           `json:"industry"`
-	Tags              string           `json:"tags"`
-	Website           string           `json:"website"`
-	Venue             string           `json:"venue"`
-	VenueAddress      string           `json:"venue_address"`
-	Country           string           `json:"country"`
-	City              string           `json:"city"`
-	Description       string           `json:"description"`
-	RegistrationStart time.Time        `json:"registration_start"`
-	RegistrationEnd   time.Time        `json:"registration_end"`
-	StartTime         time.Time        `json:"start_time"`
-	EndTime           time.Time        `json:"end_time"`
-	Version           int64            `json:"version"`
-	CreateTime        time.Time        `json:"create_time"`
-	UpdateTime        time.Time        `json:"update_time"`
-}
-
-func ConvertExhibition(in *entity.TExhibition) *Exhibition {
-	return &Exhibition{
-		ID:                in.ID,
-		ServiceProviderID: in.ServiceProviderID,
-		Title:             in.Title,
-		Status:            ExhibitionStatus(in.Status),
-		Industry:          in.Industry,
-		Tags:              in.Tags,
-		Website:           in.Website,
-		Venue:             in.Venue,
-		VenueAddress:      in.VenueAddress,
-		Country:           in.Country,
-		City:              in.City,
-		Description:       in.Description,
-		RegistrationStart: time.Unix(in.RegistrationStart, 0),
-		RegistrationEnd:   time.Unix(in.RegistrationEnd, 0),
-		StartTime:         time.Unix(in.StartTime, 0),
-		EndTime:           time.Unix(in.EndTime, 0),
-		Version:           in.Version,
-		CreateTime:        time.Unix(in.CreateTime, 0),
-		UpdateTime:        time.Unix(in.UpdateTime, 0),
-	}
-}
-
-type GetExhibitionReq struct {
-	ID string `json:"id"`
-}
-
-type GetExhibitionRes struct {
-	Exhibition *Exhibition `json:"exhibition"`
-}
-
-type ListExhibitionsReq struct {
-	Name    string   `json:"name"`
-	PageReq *PageReq `json:"page_req"`
-}
-
-type ListExhibitionsRes struct {
-	Exhibitions []*Exhibition `json:"exhibitions"`
-	PageRes     *PageRes      `json:"page_res"`
-}
-
 type OrganizerRole int
 
 const (
-	OrganizerRoleOrganizer   OrganizerRole = iota // 主办方
+	OrganizerRoleUnknown     OrganizerRole = iota // 未知角色
+	OrganizerRoleOrganizer                        // 主办方
 	OrganizerRoleCoorganizer                      // 联合主办方
 	OrganizerRoleSponsor                          // 协办方
 )
 
-type OrganizerReq struct {
-	Name               string        `json:"name"`
-	Description        string        `json:"description"`
-	LogoURL            string        `json:"logo_url"`
-	RoleType           OrganizerRole `json:"role_type"`
-	ContactPersonName  string        `json:"contact_person_name"`
-	ContactPersonPhone string        `json:"contact_person_phone"`
-	ContactPersonEmail string        `json:"contact_person_email"`
-	Website            string        `json:"website"`
+func GetOrganizerRoleText(role OrganizerRole) string {
+	switch role {
+	case OrganizerRoleOrganizer:
+		return "主办方"
+	case OrganizerRoleCoorganizer:
+		return "联合主办方"
+	case OrganizerRoleSponsor:
+		return "协办方"
+	default:
+		return "未知角色"
+	}
+}
+
+func GetOrganizerRole(roleText string) (role OrganizerRole) {
+	switch roleText {
+	case "主办方":
+		return OrganizerRoleOrganizer
+	case "联合主办方":
+		return OrganizerRoleCoorganizer
+	case "协办方":
+		return OrganizerRoleSponsor
+	default:
+		return OrganizerRoleUnknown
+	}
+}
+
+type ExOrganizer struct {
+	ID                int64         `json:"id"`
+	ExhibitionID      string        `json:"exhibition_id"`
+	ServiceProviderID string        `json:"service_provider_id"`
+	RoleType          OrganizerRole `json:"role_type"`
+	CreateTime        time.Time     `json:"create_time"`
+	UpdateTime        time.Time     `json:"update_time"`
+}
+
+type Exhibition struct {
+	ID           string           `json:"id"`
+	Organizers   []*ExOrganizer   `json:"organizers"`
+	Title        string           `json:"title"`
+	Website      string           `json:"website"`
+	Status       ExhibitionStatus `json:"status"`
+	Industry     string           `json:"industry"`
+	Tags         string           `json:"tags"`
+	Country      string           `json:"country"`
+	City         string           `json:"city"`
+	Venue        string           `json:"venue"`
+	VenueAddress string           `json:"venue_address"`
+	Description  string           `json:"description"`
+	Version      int64            `json:"version"`
+
+	RegistrationStart time.Time `json:"registration_start"`
+	RegistrationEnd   time.Time `json:"registration_end"`
+	StartTime         time.Time `json:"start_time"`
+	EndTime           time.Time `json:"end_time"`
+
+	CreateTime          time.Time `json:"create_time"`
+	SubmitForReviewTime time.Time `json:"submit_for_review_time"`
+	ApproveTime         time.Time `json:"approve_time"`
+	UpdateTime          time.Time `json:"update_time"`
+
+	Files []*File `json:"files"`
+}
+
+func ConvertExhibition(in *entity.TExhibition) *Exhibition {
+	return &Exhibition{
+		ID:           in.ID,
+		Title:        in.Title,
+		Status:       ExhibitionStatus(in.Status),
+		Website:      in.Website,
+		Country:      in.Country,
+		City:         in.City,
+		Venue:        in.Venue,
+		VenueAddress: in.VenueAddress,
+		Industry:     in.Industry,
+		Tags:         in.Tags,
+		Description:  in.Description,
+		Version:      in.Version,
+
+		RegistrationStart: time.Unix(in.RegistrationStart, 0),
+		RegistrationEnd:   time.Unix(in.RegistrationEnd, 0),
+		StartTime:         time.Unix(in.StartTime, 0),
+		EndTime:           time.Unix(in.EndTime, 0),
+
+		CreateTime:          time.Unix(in.CreateTime, 0),
+		SubmitForReviewTime: time.Unix(in.SubmitForReviewTime, 0),
+		ApproveTime:         time.Unix(in.ApproveTime, 0),
+		UpdateTime:          time.Unix(in.UpdateTime, 0),
+	}
+}
+
+func ConvertExOrganizer(in *entity.TExOrganizer) *ExOrganizer {
+	return &ExOrganizer{
+		ID:                in.ID,
+		ExhibitionID:      in.ExhibitionID,
+		ServiceProviderID: in.ServiceProviderID,
+		RoleType:          OrganizerRole(in.RoleType),
+		CreateTime:        time.Unix(in.CreateTime, 0),
+		UpdateTime:        time.Unix(in.UpdateTime, 0),
+	}
 }

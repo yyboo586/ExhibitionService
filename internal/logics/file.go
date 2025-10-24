@@ -130,3 +130,19 @@ func (f *file) IsUploadSuccess(ctx context.Context, fileInfo *model.File) (err e
 	}
 	return nil
 }
+
+func (f *file) CheckFileUploadSuccess(ctx context.Context, fileIDs []string) (err error) {
+	for _, v := range fileIDs {
+		exists, err := dao.File.Ctx(ctx).
+			Where(dao.File.Columns().FileID, v).
+			Where(dao.File.Columns().Status, model.FileStatusUploadSuccess).
+			Exist()
+		if err != nil {
+			return err
+		}
+		if !exists {
+			return gerror.Newf("check file upload success failed, file not upload success, file id: %s", v)
+		}
+	}
+	return nil
+}

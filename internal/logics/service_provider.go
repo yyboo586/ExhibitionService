@@ -154,18 +154,24 @@ func (sp *serviceProvider) List(ctx context.Context, name string, pageReq *model
 	return out, pageRes, nil
 }
 
+func (sp *serviceProvider) IsAvailable(ctx context.Context, in *model.ServiceProvider) (err error) {
+	if in.Status != model.ServiceProviderStatusApproved {
+		return gerror.Newf("service provider is not available, status: %s", model.GetServiceProviderStatusText(in.Status))
+	}
+
+	return nil
+}
+
 // ---------------私有方法--------------------------------
 // 检查文件是否上传成功
 func (sp *serviceProvider) checkFileUploadSuccess(ctx context.Context, files []*model.File) (err error) {
-	for _, v := range files {
-		fileInfo, err := sp.fileDomain.Get(ctx, v.FileID)
-		if err != nil {
-			return err
-		}
-		err = sp.fileDomain.IsUploadSuccess(ctx, fileInfo)
-		if err != nil {
-			return err
-		}
+	fileIDs := make([]string, len(files))
+	for i, v := range files {
+		fileIDs[i] = v.FileID
+	}
+	err = sp.fileDomain.CheckFileUploadSuccess(ctx, fileIDs)
+	if err != nil {
+		return err
 	}
 	return nil
 }

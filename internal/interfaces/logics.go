@@ -22,6 +22,8 @@ type IFile interface {
 	ClearCustomInfo(ctx context.Context, tx gdb.TX, module model.FileModule, customID string) (err error)
 	// 检查文件是否上传成功
 	IsUploadSuccess(ctx context.Context, fileInfo *model.File) (err error)
+	// 检查文件是否上传成功
+	CheckFileUploadSuccess(ctx context.Context, fileIDs []string) (err error)
 }
 
 type ICompany interface {
@@ -43,6 +45,9 @@ type IServiceProvider interface {
 	GetPendingList(ctx context.Context, pageReq *model.PageReq) (out []*model.ServiceProvider, pageRes *model.PageRes, err error)
 	// 列表/搜索
 	List(ctx context.Context, name string, pageReq *model.PageReq) (out []*model.ServiceProvider, pageRes *model.PageRes, err error)
+
+	// 检查服务提供商是否可用
+	IsAvailable(ctx context.Context, in *model.ServiceProvider) (err error)
 
 	// 状态流转
 	// 处理服务提供商状态事件
@@ -71,17 +76,13 @@ type IExhibition interface {
 	Create(ctx context.Context, tx gdb.TX, in *model.Exhibition) (id string, err error)
 	// 获取展会详情
 	GetExhibition(ctx context.Context, id string) (out *model.Exhibition, err error)
-	// 更新展会信息
-	UpdateExhibition(ctx context.Context, in *model.Exhibition) (err error)
-	// 删除展会
-	DeleteExhibition(ctx context.Context, id string) (err error)
 	// 列表展会
 	ListExhibitions(ctx context.Context, name string, pageReq *model.PageReq) (out []*model.Exhibition, pageRes *model.PageRes, err error)
 
 	// 获取待审核列表
-	GetPendingList(ctx context.Context, pageReq *model.PageReq) (out []*model.Exhibition, pageRes *model.PageRes, err error)
+	// GetPendingList(ctx context.Context, pageReq *model.PageReq) (out []*model.Exhibition, pageRes *model.PageRes, err error)
 
 	// 状态流转
 	// 处理展会状态事件
-	HandleEvent(ctx context.Context, exhibitionID string, event model.ExhibitionEvent, data interface{}) (err error)
+	// HandleEvent(ctx context.Context, exhibitionID string, event model.ExhibitionEvent, data interface{}) (err error)
 }

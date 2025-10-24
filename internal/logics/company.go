@@ -192,15 +192,13 @@ func (c *company) recommitMerchant(ctx context.Context, tx gdb.TX, in *model.Com
 
 // 检查文件是否上传成功
 func (c *company) checkFileUploadSuccess(ctx context.Context, files []*model.File) (err error) {
-	for _, v := range files {
-		fileInfo, err := c.fileDomain.Get(ctx, v.FileID)
-		if err != nil {
-			return err
-		}
-		err = c.fileDomain.IsUploadSuccess(ctx, fileInfo)
-		if err != nil {
-			return err
-		}
+	fileIDs := make([]string, len(files))
+	for i, v := range files {
+		fileIDs[i] = v.FileID
+	}
+	err = c.fileDomain.CheckFileUploadSuccess(ctx, fileIDs)
+	if err != nil {
+		return err
 	}
 	return nil
 }
