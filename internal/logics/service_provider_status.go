@@ -97,7 +97,7 @@ func (sp *serviceProvider) GetPendingList(ctx context.Context, pageReq *model.Pa
 // 状态流转
 func (sp *serviceProvider) HandleEvent(ctx context.Context, serviceProviderID string, event model.ServiceProviderEvent, data interface{}) (err error) {
 	// 获取服务提供商信息
-	serviceProvider, err := sp.GetServiceProvider(ctx, serviceProviderID)
+	serviceProvider, err := sp.Get(ctx, serviceProviderID)
 	if err != nil {
 		return err
 	}
@@ -168,8 +168,7 @@ func (sp *serviceProvider) handleServiceProviderReject(ctx context.Context, serv
 }
 
 func (sp *serviceProvider) handleServiceProviderReCommit(ctx context.Context, serviceProvider *model.ServiceProvider, data interface{}) (err error) {
-	newCompanyInfo := data.(map[string]interface{})["company_info"].(*model.Company)
-	newSPInfo := data.(map[string]interface{})["service_provider_info"].(*model.ServiceProvider)
+	newSPInfo := data.(*model.ServiceProvider)
 
 	var dataUpdate map[string]any = make(map[string]any)
 	if serviceProvider.Name != newSPInfo.Name {
@@ -196,7 +195,7 @@ func (sp *serviceProvider) handleServiceProviderReCommit(ctx context.Context, se
 	dataUpdate[dao.ServiceProvider.Columns().UpdateTime] = time.Now().Unix()
 
 	return g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
-		err = sp.companyDomain.Recommit(ctx, tx, model.CompanyTypeServiceProvider, newCompanyInfo)
+		err = sp.companyDomain.Recommit(ctx, tx, model.CompanyTypeServiceProvider, newSPInfo.CompanyInfo)
 		if err != nil {
 			return gerror.Newf("recommit service provider failed, recommit company failed, err: %s", err.Error())
 		}

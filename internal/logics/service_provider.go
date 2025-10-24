@@ -68,7 +68,6 @@ func (sp *serviceProvider) Create(ctx context.Context, tx gdb.TX, in *model.Serv
 		dao.ServiceProvider.Columns().ContactPersonEmail:  in.ContactPersonEmail,
 		dao.ServiceProvider.Columns().Website:             in.Website,
 		dao.ServiceProvider.Columns().Status:              int(model.ServiceProviderStatusPending),
-		dao.ServiceProvider.Columns().Version:             1,
 		dao.ServiceProvider.Columns().CreateTime:          time.Now().Unix(),
 		dao.ServiceProvider.Columns().SubmitForReviewTime: time.Now().Unix(),
 		dao.ServiceProvider.Columns().UpdateTime:          time.Now().Unix(),
@@ -90,7 +89,7 @@ func (sp *serviceProvider) Create(ctx context.Context, tx gdb.TX, in *model.Serv
 	return id, nil
 }
 
-func (sp *serviceProvider) GetServiceProvider(ctx context.Context, id string) (out *model.ServiceProvider, err error) {
+func (sp *serviceProvider) Get(ctx context.Context, id string) (out *model.ServiceProvider, err error) {
 	var tsp entity.TServiceProvider
 	err = dao.ServiceProvider.Ctx(ctx).Where(dao.ServiceProvider.Columns().ID, id).Scan(&tsp)
 	if err != nil {
@@ -114,11 +113,52 @@ func (sp *serviceProvider) GetServiceProvider(ctx context.Context, id string) (o
 	return out, nil
 }
 
+func (sp *serviceProvider) List(ctx context.Context, name string, pageReq *model.PageReq) (out []*model.ServiceProvider, pageRes *model.PageRes, err error) {
+	if pageReq.Page == 0 {
+		pageReq.Page = 1
+	}
+	if pageReq.Size == 0 {
+		pageReq.Size = 10
+	}
+
+	query := dao.ServiceProvider.Ctx(ctx)
+	if name != "" {
+		query = query.WhereLike(dao.ServiceProvider.Columns().Name, name+"%")
+	}
+	total, err := query.Count()
+	if err != nil {
+		return nil, nil, gerror.Newf("list service providers failed, query count err: %s", err.Error())
+	}
+
+	var tsp []*entity.TServiceProvider
+	query = query.Page(pageReq.Page, pageReq.Size).OrderDesc(dao.ServiceProvider.Columns().CreateTime)
+	err = query.Scan(&tsp)
+	if err != nil {
+		return nil, nil, gerror.Newf("list service providers failed, query scan err: %s", err.Error())
+	}
+
+	for _, r := range tsp {
+		tmp := model.ConvertServiceProvider(r)
+		tmp.CompanyInfo, err = sp.companyDomain.Get(ctx, tmp.CompanyID)
+		if err != nil {
+			return nil, nil, gerror.Newf("list service providers failed, get company info failed, err: %s", err.Error())
+		}
+
+		out = append(out, tmp)
+	}
+
+	pageRes = &model.PageRes{
+		Total:       total,
+		CurrentPage: pageReq.Page,
+	}
+	return out, pageRes, nil
+}
+
 // ---------------私有方法--------------------------------
 // 检查文件是否上传成功
 func (sp *serviceProvider) checkFileUploadSuccess(ctx context.Context, files []*model.File) (err error) {
 	for _, v := range files {
-		fileInfo, err := sp.fileDomain.GetFile(ctx, v.FileID)
+		fileInfo, err := sp.fileDomain.Get(ctx, v.FileID)
 		if err != nil {
 			return err
 		}
@@ -137,7 +177,7 @@ func (sp *serviceProvider) checkFileComplete(ctx context.Context, files []*model
 // 建立 文件 - 服务提供商 关联
 func (sp *serviceProvider) createFileRelation(ctx context.Context, tx gdb.TX, serviceProviderID string, files []*model.File) (err error) {
 	for _, v := range files {
-		err = sp.fileDomain.UpdateFileCustomInfo(ctx, tx, v.FileID, model.FileModuleServiceProvider, serviceProviderID, v.Type)
+		err = sp.fileDomain.UpdateCustomInfo(ctx, tx, v.FileID, model.FileModuleServiceProvider, serviceProviderID, v.Type)
 		if err != nil {
 			return err
 		}
@@ -147,7 +187,7 @@ func (sp *serviceProvider) createFileRelation(ctx context.Context, tx gdb.TX, se
 
 // 清除文件 自定义属性
 func (sp *serviceProvider) clearFileRelation(ctx context.Context, tx gdb.TX, serviceProviderID string) (err error) {
-	err = sp.fileDomain.ClearFileCustomInfo(ctx, tx, model.FileModuleServiceProvider, serviceProviderID)
+	err = sp.fileDomain.ClearCustomInfo(ctx, tx, model.FileModuleServiceProvider, serviceProviderID)
 	if err != nil {
 		return err
 	}
@@ -155,7 +195,7 @@ func (sp *serviceProvider) clearFileRelation(ctx context.Context, tx gdb.TX, ser
 }
 
 func (sp *serviceProvider) getFiles(ctx context.Context, serviceProviderID string) (files []*model.File, err error) {
-	files, err = sp.fileDomain.ListFilesByModuleAndCustomID(ctx, model.FileModuleServiceProvider, serviceProviderID)
+	files, err = sp.fileDomain.ListByModuleAndCustomID(ctx, model.FileModuleServiceProvider, serviceProviderID)
 	if err != nil {
 		return nil, err
 	}

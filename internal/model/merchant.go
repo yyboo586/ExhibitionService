@@ -8,9 +8,11 @@ import (
 type MerchantStatus int
 
 const (
-	MerchantStatusPending  MerchantStatus = iota // 待审核
-	MerchantStatusApproved                       // 已审核
-	MerchantStatusDisabled                       // 已禁用
+	MerchantStatusPending      MerchantStatus = iota // 待审核
+	MerchantStatusApproved                           // 已审核
+	MerchantStatusRejected                           // 审核驳回
+	MerchantStatusDisabled                           // 已禁用
+	MerchantStatusUnregistered                       // 注销
 )
 
 func GetMerchantStatusText(status MerchantStatus) string {
@@ -19,73 +21,85 @@ func GetMerchantStatusText(status MerchantStatus) string {
 		return "待审核"
 	case MerchantStatusApproved:
 		return "已审核"
+	case MerchantStatusRejected:
+		return "审核驳回"
 	case MerchantStatusDisabled:
 		return "已禁用"
+	case MerchantStatusUnregistered:
+		return "注销"
 	default:
 		return "未知状态"
 	}
 }
 
+// 展商事件类型
+type MerchantEvent uint8
+
+const (
+	MerchantEventReCommit   MerchantEvent = iota // 重新提交审核
+	MerchantEventApprove                         // 审核通过
+	MerchantEventReject                          // 审核驳回
+	MerchantEventDisable                         // 禁用
+	MerchantEventEnable                          // 启用
+	MerchantEventUnregister                      // 注销
+)
+
+func GetMerchantEventText(event MerchantEvent) string {
+	switch event {
+	case MerchantEventApprove:
+		return "审核通过"
+	case MerchantEventReject:
+		return "审核驳回"
+	case MerchantEventReCommit:
+		return "重新提交审核"
+	case MerchantEventDisable:
+		return "禁用"
+	case MerchantEventEnable:
+		return "启用"
+	case MerchantEventUnregister:
+		return "注销"
+	default:
+		return "未知事件"
+	}
+}
+
 type Merchant struct {
-	ID                 string         `json:"id"`
-	CompanyID          string         `json:"company_id"`
-	ExhibitionID       string         `json:"exhibition_id"`
-	Name               string         `json:"name"`
-	Description        string         `json:"description"`
-	BoothNumber        string         `json:"booth_number"`
-	ContactPersonName  string         `json:"contact_person_name"`
-	ContactPersonPhone string         `json:"contact_person_phone"`
-	ContactPersonEmail string         `json:"contact_person_email"`
-	Status             MerchantStatus `json:"status"`
-	Version            int64          `json:"version"`
-	CreateTime         time.Time      `json:"create_time"`
-	UpdateTime         time.Time      `json:"update_time"`
+	ID                  string         `json:"id"`
+	CompanyID           string         `json:"company_id"`
+	Name                string         `json:"name"`
+	Status              MerchantStatus `json:"status"`
+	Website             string         `json:"website"`
+	ContactPersonName   string         `json:"contact_person_name"`
+	ContactPersonPhone  string         `json:"contact_person_phone"`
+	ContactPersonEmail  string         `json:"contact_person_email"`
+	Description         string         `json:"description"`
+	Version             int64          `json:"version"`
+	CreateTime          time.Time      `json:"create_time"`
+	SubmitForReviewTime time.Time      `json:"submit_for_review_time"`
+	ApproveTime         time.Time      `json:"approve_time"`
+	UpdateTime          time.Time      `json:"update_time"`
+
+	// 关联信息
+	CompanyInfo *Company `json:"company_info,omitempty"`
+	Files       []*File  `json:"files,omitempty"`
 }
 
 func ConvertMerchant(in *entity.TMerchant) *Merchant {
 	return &Merchant{
 		ID:                 in.ID,
 		CompanyID:          in.CompanyID,
-		ExhibitionID:       in.ExhibitionID,
 		Name:               in.Name,
-		Description:        in.Description,
-		BoothNumber:        in.BoothNumber,
+		Status:             MerchantStatus(in.Status),
+		Website:            in.Website,
 		ContactPersonName:  in.ContactPersonName,
 		ContactPersonPhone: in.ContactPersonPhone,
 		ContactPersonEmail: in.ContactPersonEmail,
-		Status:             MerchantStatus(in.Status),
+		Description:        in.Description,
 		Version:            in.Version,
-		CreateTime:         time.Unix(in.CreateTime, 0),
-		UpdateTime:         time.Unix(in.UpdateTime, 0),
+
+		CreateTime:          time.Unix(in.CreateTime, 0),
+		SubmitForReviewTime: time.Unix(in.SubmitForReviewTime, 0),
+		ApproveTime:         time.Unix(in.ApproveTime, 0),
+		UpdateTime:          time.Unix(in.UpdateTime, 0),
 	}
-}
-
-type CreateMerchantReq struct {
-	CompanyID          string `json:"company_id" v:"required#公司ID不能为空" dc:"公司ID"`
-	ExhibitionID       string `json:"exhibition_id" v:"required#展会ID不能为空" dc:"展会ID"`
-	Name               string `json:"name" v:"required#展商名称不能为空" dc:"展商名称"`
-	Description        string `json:"description" dc:"展商描述"`
-	BoothNumber        string `json:"booth_number" dc:"展位号"`
-	ContactPersonName  string `json:"contact_person_name" dc:"联系人姓名"`
-	ContactPersonPhone string `json:"contact_person_phone" dc:"联系人电话"`
-	ContactPersonEmail string `json:"contact_person_email" dc:"联系人邮箱"`
-}
-
-type GetMerchantReq struct {
-	ID string `json:"id"`
-}
-
-type GetMerchantRes struct {
-	Merchant *Merchant `json:"merchant"`
-}
-
-type ListMerchantsReq struct {
-	ExhibitionID string   `json:"exhibition_id"`
-	Name         string   `json:"name"`
-	PageReq      *PageReq `json:"page_req"`
-}
-
-type ListMerchantsRes struct {
-	Merchants []*Merchant `json:"merchants"`
-	PageRes   *PageRes    `json:"page_res"`
 }

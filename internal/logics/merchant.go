@@ -21,47 +21,74 @@ var (
 	merchantDomain *merchant
 )
 
-type merchant struct{}
+type merchant struct {
+	fileDomain    interfaces.IFile
+	companyDomain interfaces.ICompany
 
-func NewMerchant() interfaces.IMerchant {
+	transitionMap map[model.MerchantStatus]map[model.MerchantEvent]MerchantTransition
+}
+
+func NewMerchant(fileDomain interfaces.IFile, companyDomain interfaces.ICompany) interfaces.IMerchant {
 	merchantOnce.Do(func() {
-		merchantDomain = &merchant{}
+		merchantDomain = &merchant{
+			fileDomain:    fileDomain,
+			companyDomain: companyDomain,
+		}
+		merchantDomain.initTransitionMap()
 	})
 	return merchantDomain
 }
 
 func (m *merchant) Create(ctx context.Context, tx gdb.TX, in *model.Merchant) (id string, err error) {
-	id = uuid.New().String()
+	companyID, err := m.companyDomain.Create(ctx, tx, in.CompanyInfo)
+	if err != nil {
+		return "", err
+	}
 
-	// 创建展商
+	in.CompanyID = companyID
+	err = m.checkFileUploadSuccess(ctx, in.Files)
+	if err != nil {
+		return "", err
+	}
+
+	err = m.checkFileComplete(ctx, in.Files)
+	if err != nil {
+		return "", err
+	}
+
+	id = uuid.New().String()
 	data := map[string]any{
-		dao.Merchant.Columns().ID:                 id,
-		dao.Merchant.Columns().CompanyID:          in.CompanyID,
-		dao.Merchant.Columns().ExhibitionID:       in.ExhibitionID,
-		dao.Merchant.Columns().Name:               in.Name,
-		dao.Merchant.Columns().Description:        in.Description,
-		dao.Merchant.Columns().BoothNumber:        in.BoothNumber,
-		dao.Merchant.Columns().ContactPersonName:  in.ContactPersonName,
-		dao.Merchant.Columns().ContactPersonPhone: in.ContactPersonPhone,
-		dao.Merchant.Columns().ContactPersonEmail: in.ContactPersonEmail,
-		dao.Merchant.Columns().Status:             int(model.MerchantStatusPending),
-		dao.Merchant.Columns().Version:            1,
-		dao.Merchant.Columns().CreateTime:         time.Now().Unix(),
-		dao.Merchant.Columns().UpdateTime:         time.Now().Unix(),
+		dao.Merchant.Columns().ID:                  id,
+		dao.Merchant.Columns().CompanyID:           in.CompanyID,
+		dao.Merchant.Columns().Name:                in.Name,
+		dao.Merchant.Columns().Description:         in.Description,
+		dao.Merchant.Columns().ContactPersonName:   in.ContactPersonName,
+		dao.Merchant.Columns().ContactPersonPhone:  in.ContactPersonPhone,
+		dao.Merchant.Columns().ContactPersonEmail:  in.ContactPersonEmail,
+		dao.Merchant.Columns().Website:             in.Website,
+		dao.Merchant.Columns().Status:              int(model.MerchantStatusPending),
+		dao.Merchant.Columns().CreateTime:          time.Now().Unix(),
+		dao.Merchant.Columns().SubmitForReviewTime: time.Now().Unix(),
+		dao.Merchant.Columns().UpdateTime:          time.Now().Unix(),
 	}
 
 	_, err = dao.Merchant.Ctx(ctx).TX(tx).Data(data).Insert()
 	if err != nil {
-		if strings.Contains(err.Error(), "Duplicate entry") {
-			return "", gerror.Newf("create merchant failed, merchant already exists for this exhibition")
+		if strings.Contains(err.Error(), "Duplicate entry 'name'") {
+			return "", gerror.Newf("create merchant failed, merchant name already exists, name: %s", in.Name)
 		}
 		return "", gerror.Newf("create merchant failed, err: %s", err.Error())
+	}
+
+	err = m.createFileRelation(ctx, tx, id, in.Files)
+	if err != nil {
+		return "", err
 	}
 
 	return id, nil
 }
 
-func (m *merchant) GetMerchant(ctx context.Context, id string) (out *model.Merchant, err error) {
+func (m *merchant) Get(ctx context.Context, id string) (out *model.Merchant, err error) {
 	var tm entity.TMerchant
 	err = dao.Merchant.Ctx(ctx).Where(dao.Merchant.Columns().ID, id).Scan(&tm)
 	if err != nil {
@@ -71,52 +98,21 @@ func (m *merchant) GetMerchant(ctx context.Context, id string) (out *model.Merch
 		return nil, gerror.Newf("get merchant failed, err: %s", err.Error())
 	}
 
-	return model.ConvertMerchant(&tm), nil
-}
-
-func (m *merchant) UpdateMerchant(ctx context.Context, in *model.Merchant) (err error) {
-	data := map[string]any{}
-	if in.Name != "" {
-		data[dao.Merchant.Columns().Name] = in.Name
-	}
-	if in.Description != "" {
-		data[dao.Merchant.Columns().Description] = in.Description
-	}
-	if in.BoothNumber != "" {
-		data[dao.Merchant.Columns().BoothNumber] = in.BoothNumber
-	}
-	if in.ContactPersonName != "" {
-		data[dao.Merchant.Columns().ContactPersonName] = in.ContactPersonName
-	}
-	if in.ContactPersonPhone != "" {
-		data[dao.Merchant.Columns().ContactPersonPhone] = in.ContactPersonPhone
-	}
-	if in.ContactPersonEmail != "" {
-		data[dao.Merchant.Columns().ContactPersonEmail] = in.ContactPersonEmail
-	}
-
-	if len(data) == 0 {
-		return nil
-	}
-
-	data[dao.Merchant.Columns().UpdateTime] = time.Now().Unix()
-	_, err = dao.Merchant.Ctx(ctx).Data(data).Where(dao.Merchant.Columns().ID, in.ID).Update()
+	out = model.ConvertMerchant(&tm)
+	out.Files, err = m.getFiles(ctx, id)
 	if err != nil {
-		return gerror.Newf("update merchant failed, err: %s", err.Error())
+		return nil, err
 	}
 
-	return nil
-}
-
-func (m *merchant) DeleteMerchant(ctx context.Context, id string) (err error) {
-	_, err = dao.Merchant.Ctx(ctx).Where(dao.Merchant.Columns().ID, id).Delete()
+	out.CompanyInfo, err = m.companyDomain.Get(ctx, out.CompanyID)
 	if err != nil {
-		return gerror.Newf("delete merchant failed, err: %s", err.Error())
+		return nil, err
 	}
-	return nil
+
+	return out, nil
 }
 
-func (m *merchant) ListMerchants(ctx context.Context, exhibitionID string, name string, pageReq *model.PageReq) (out []*model.Merchant, pageRes *model.PageRes, err error) {
+func (m *merchant) List(ctx context.Context, name string, pageReq *model.PageReq) (out []*model.Merchant, pageRes *model.PageRes, err error) {
 	if pageReq.Page == 0 {
 		pageReq.Page = 1
 	}
@@ -125,12 +121,10 @@ func (m *merchant) ListMerchants(ctx context.Context, exhibitionID string, name 
 	}
 
 	query := dao.Merchant.Ctx(ctx)
-	if exhibitionID != "" {
-		query = query.Where(dao.Merchant.Columns().ExhibitionID, exhibitionID)
-	}
 	if name != "" {
 		query = query.WhereLike(dao.Merchant.Columns().Name, name+"%")
 	}
+
 	total, err := query.Count()
 	if err != nil {
 		return nil, nil, gerror.Newf("list merchants failed, query count err: %s", err.Error())
@@ -144,7 +138,17 @@ func (m *merchant) ListMerchants(ctx context.Context, exhibitionID string, name 
 	}
 
 	for _, r := range tm {
-		out = append(out, model.ConvertMerchant(r))
+		tmp := model.ConvertMerchant(r)
+		tmp.Files, err = m.getFiles(ctx, tmp.ID)
+		if err != nil {
+			return nil, nil, gerror.Newf("list merchants failed, get files failed, err: %s", err.Error())
+		}
+		tmp.CompanyInfo, err = m.companyDomain.Get(ctx, tmp.CompanyID)
+		if err != nil {
+			return nil, nil, gerror.Newf("list merchants failed, get company info failed, err: %s", err.Error())
+		}
+
+		out = append(out, tmp)
 	}
 
 	pageRes = &model.PageRes{
@@ -154,57 +158,51 @@ func (m *merchant) ListMerchants(ctx context.Context, exhibitionID string, name 
 	return out, pageRes, nil
 }
 
-func (m *merchant) GetPendingList(ctx context.Context, pageReq *model.PageReq) (out []*model.Merchant, pageRes *model.PageRes, err error) {
-	if pageReq.Page == 0 {
-		pageReq.Page = 1
+// ---------------私有方法--------------------------------
+// 检查文件是否上传成功
+func (m *merchant) checkFileUploadSuccess(ctx context.Context, files []*model.File) (err error) {
+	for _, v := range files {
+		fileInfo, err := m.fileDomain.Get(ctx, v.FileID)
+		if err != nil {
+			return err
+		}
+		err = m.fileDomain.IsUploadSuccess(ctx, fileInfo)
+		if err != nil {
+			return err
+		}
 	}
-	if pageReq.Size == 0 {
-		pageReq.Size = 10
-	}
-
-	query := dao.Merchant.Ctx(ctx).Where(dao.Merchant.Columns().Status, int(model.MerchantStatusPending))
-	total, err := query.Count()
-	if err != nil {
-		return nil, nil, gerror.Newf("get pending merchants failed, query count err: %s", err.Error())
-	}
-
-	var tm []*entity.TMerchant
-	query = query.Page(pageReq.Page, pageReq.Size).OrderDesc(dao.Merchant.Columns().CreateTime)
-	err = query.Scan(&tm)
-	if err != nil {
-		return nil, nil, gerror.Newf("get pending merchants failed, query scan err: %s", err.Error())
-	}
-
-	for _, r := range tm {
-		out = append(out, model.ConvertMerchant(r))
-	}
-
-	pageRes = &model.PageRes{
-		Total:       total,
-		CurrentPage: pageReq.Page,
-	}
-	return out, pageRes, nil
+	return nil
 }
 
-// 状态流转
-func (m *merchant) HandleEvent(ctx context.Context, merchantID string, event interfaces.MerchantEvent, data interface{}) (err error) {
-	// 获取展商信息
-	merchant, err := m.GetMerchant(ctx, merchantID)
+func (m *merchant) checkFileComplete(ctx context.Context, files []*model.File) (err error) {
+	return nil
+}
+
+// 建立 文件 - 商户 关联
+func (m *merchant) createFileRelation(ctx context.Context, tx gdb.TX, merchantID string, files []*model.File) (err error) {
+	for _, v := range files {
+		err = m.fileDomain.UpdateCustomInfo(ctx, tx, v.FileID, model.FileModuleMerchant, merchantID, v.Type)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// 清除文件 自定义属性
+func (m *merchant) clearFileRelation(ctx context.Context, tx gdb.TX, merchantID string) (err error) {
+	err = m.fileDomain.ClearCustomInfo(ctx, tx, model.FileModuleMerchant, merchantID)
 	if err != nil {
 		return err
 	}
-
-	// 验证当前状态是否支持该事件
-	transition, ok := merchantTransitionMap[merchant.Status][event]
-	if !ok {
-		return gerror.Newf("merchant current status: %s, not supported event: %s", model.GetMerchantStatusText(merchant.Status), GetMerchantEventText(event))
-	}
-
-	// 执行状态操作
-	err = transition.Action(ctx, merchant, data)
-	if err != nil {
-		return gerror.Newf("handle event failed, merchant id: %s, event: %s, err: %s", merchantID, GetMerchantEventText(event), err.Error())
-	}
-
 	return nil
+}
+
+func (m *merchant) getFiles(ctx context.Context, merchantID string) (files []*model.File, err error) {
+	files, err = m.fileDomain.ListByModuleAndCustomID(ctx, model.FileModuleMerchant, merchantID)
+	if err != nil {
+		return nil, err
+	}
+
+	return files, nil
 }

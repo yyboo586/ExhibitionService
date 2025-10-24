@@ -14,35 +14,37 @@ type TMerchant struct {
 }
 
 type TMerchantColumns struct {
-	ID                 string // 展商ID
-	CompanyID          string // 关联的公司ID
-	ExhibitionID       string // 关联的展会ID
-	Name               string // 展商名称
-	Description        string // 展商描述
-	BoothNumber        string // 展位号
-	ContactPersonName  string // 联系人姓名
-	ContactPersonPhone string // 联系人电话
-	ContactPersonEmail string // 联系人邮箱
-	Status             string // 状态
-	Version            string // 版本号
-	CreateTime         string // 创建时间
-	UpdateTime         string // 更新时间
+	ID                  string // 商户ID
+	CompanyID           string // 关联的公司ID
+	Name                string // 商户名称
+	Status              string // 状态
+	Website             string // 商户官网
+	ContactPersonName   string // 联系人姓名
+	ContactPersonPhone  string // 联系人电话
+	ContactPersonEmail  string // 联系人邮箱
+	Description         string // 商户描述
+	Version             string // 版本号
+	CreateTime          string // 创建时间
+	SubmitForReviewTime string // 提交审核时间
+	ApproveTime         string // 审核通过时间
+	UpdateTime          string // 更新时间
 }
 
 var merchantColumns = TMerchantColumns{
-	ID:                 "id",
-	CompanyID:          "company_id",
-	ExhibitionID:       "exhibition_id",
-	Name:               "name",
-	Description:        "description",
-	BoothNumber:        "booth_number",
-	ContactPersonName:  "contact_person_name",
-	ContactPersonPhone: "contact_person_phone",
-	ContactPersonEmail: "contact_person_email",
-	Status:             "status",
-	Version:            "version",
-	CreateTime:         "create_time",
-	UpdateTime:         "update_time",
+	ID:                  "id",
+	CompanyID:           "company_id",
+	Name:                "name",
+	Status:              "status",
+	Website:             "website",
+	ContactPersonName:   "contact_person_name",
+	ContactPersonPhone:  "contact_person_phone",
+	ContactPersonEmail:  "contact_person_email",
+	Description:         "description",
+	Version:             "version",
+	CreateTime:          "create_time",
+	SubmitForReviewTime: "submit_for_review_time",
+	ApproveTime:         "approve_time",
+	UpdateTime:          "update_time",
 }
 
 func NewTMerchant() *TMerchant {

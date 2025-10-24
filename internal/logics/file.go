@@ -44,7 +44,7 @@ func (f *file) Create(ctx context.Context, fileID string, fileName string, fileL
 	return nil
 }
 
-func (f *file) UpdateFileStatus(ctx context.Context, fileID string, status model.FileStatus) (err error) {
+func (f *file) UpdateStatus(ctx context.Context, fileID string, status model.FileStatus) (err error) {
 	_, err = dao.File.Ctx(ctx).Data(map[string]any{
 		dao.File.Columns().Status:     int(status),
 		dao.File.Columns().UpdateTime: time.Now().Unix(),
@@ -56,8 +56,8 @@ func (f *file) UpdateFileStatus(ctx context.Context, fileID string, status model
 	return nil
 }
 
-func (f *file) UpdateFileCustomInfo(ctx context.Context, tx gdb.TX, fileID string, fileModule model.FileModule, customID string, typ model.FileType) (err error) {
-	_, err = f.GetFile(ctx, fileID)
+func (f *file) UpdateCustomInfo(ctx context.Context, tx gdb.TX, fileID string, fileModule model.FileModule, customID string, typ model.FileType) (err error) {
+	_, err = f.Get(ctx, fileID)
 	if err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func (f *file) UpdateFileCustomInfo(ctx context.Context, tx gdb.TX, fileID strin
 	return nil
 }
 
-func (f *file) GetFile(ctx context.Context, fileID string) (out *model.File, err error) {
+func (f *file) Get(ctx context.Context, fileID string) (out *model.File, err error) {
 	var t entity.TFile
 	err = dao.File.Ctx(ctx).Where(dao.File.Columns().FileID, fileID).Scan(&t)
 	if err != nil {
@@ -94,7 +94,7 @@ func (f *file) GetFile(ctx context.Context, fileID string) (out *model.File, err
 	return out, nil
 }
 
-func (f *file) ListFilesByModuleAndCustomID(ctx context.Context, module model.FileModule, customID string) (out []*model.File, err error) {
+func (f *file) ListByModuleAndCustomID(ctx context.Context, module model.FileModule, customID string) (out []*model.File, err error) {
 	var t []*entity.TFile
 	err = dao.File.Ctx(ctx).
 		Where(dao.File.Columns().Module, int(module)).
@@ -111,7 +111,7 @@ func (f *file) ListFilesByModuleAndCustomID(ctx context.Context, module model.Fi
 	return out, nil
 }
 
-func (f *file) ClearFileCustomInfo(ctx context.Context, tx gdb.TX, module model.FileModule, customID string) (err error) {
+func (f *file) ClearCustomInfo(ctx context.Context, tx gdb.TX, module model.FileModule, customID string) (err error) {
 	_, err = dao.File.Ctx(ctx).TX(tx).Data(map[string]any{
 		dao.File.Columns().Module:     int(module),
 		dao.File.Columns().CustomID:   customID,

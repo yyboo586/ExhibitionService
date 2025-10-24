@@ -2,7 +2,6 @@ package logics
 
 import (
 	"ExhibitionService/internal/dao"
-	"ExhibitionService/internal/interfaces"
 	"ExhibitionService/internal/model"
 	"context"
 	"time"
@@ -11,21 +10,21 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 )
 
-func GetExhibitionEventText(event interfaces.ExhibitionEvent) string {
+func GetExhibitionEventText(event model.ExhibitionEvent) string {
 	switch event {
-	case interfaces.ExhibitionEventSubmitForReview:
+	case model.ExhibitionEventSubmitForReview:
 		return "提交审核"
-	case interfaces.ExhibitionEventApprove:
+	case model.ExhibitionEventApprove:
 		return "审核通过"
-	case interfaces.ExhibitionEventReject:
+	case model.ExhibitionEventReject:
 		return "审核驳回"
-	case interfaces.ExhibitionEventStartEnrolling:
+	case model.ExhibitionEventStartEnrolling:
 		return "开始报名"
-	case interfaces.ExhibitionEventStartRunning:
+	case model.ExhibitionEventStartRunning:
 		return "开始进行"
-	case interfaces.ExhibitionEventEnd:
+	case model.ExhibitionEventEnd:
 		return "结束展会"
-	case interfaces.ExhibitionEventCancel:
+	case model.ExhibitionEventCancel:
 		return "取消展会"
 	default:
 		return "未知事件"
@@ -39,60 +38,60 @@ type ExhibitionTransition struct {
 	Action ExhibitionAction
 }
 
-var exhibitionTransitionMap = map[model.ExhibitionStatus]map[interfaces.ExhibitionEvent]ExhibitionTransition{
+var exhibitionTransitionMap = map[model.ExhibitionStatus]map[model.ExhibitionEvent]ExhibitionTransition{
 	model.ExhibitionStatusPreparing: {
-		interfaces.ExhibitionEventSubmitForReview: {
+		model.ExhibitionEventSubmitForReview: {
 			State:  model.ExhibitionStatusPending,
 			Action: handleExhibitionSubmitForReview,
 		},
-		interfaces.ExhibitionEventCancel: {
+		model.ExhibitionEventCancel: {
 			State:  model.ExhibitionStatusCancelled,
 			Action: handleExhibitionCancel,
 		},
 	},
 	model.ExhibitionStatusPending: {
-		interfaces.ExhibitionEventApprove: {
+		model.ExhibitionEventApprove: {
 			State:  model.ExhibitionStatusApproved,
 			Action: handleExhibitionApprove,
 		},
-		interfaces.ExhibitionEventReject: {
+		model.ExhibitionEventReject: {
 			State:  model.ExhibitionStatusPreparing,
 			Action: handleExhibitionReject,
 		},
 	},
 	model.ExhibitionStatusApproved: {
-		interfaces.ExhibitionEventStartEnrolling: {
+		model.ExhibitionEventStartEnrolling: {
 			State:  model.ExhibitionStatusEnrolling,
 			Action: handleExhibitionStartEnrolling,
 		},
-		interfaces.ExhibitionEventCancel: {
+		model.ExhibitionEventCancel: {
 			State:  model.ExhibitionStatusCancelled,
 			Action: handleExhibitionCancel,
 		},
 	},
 	model.ExhibitionStatusEnrolling: {
-		interfaces.ExhibitionEventStartRunning: {
+		model.ExhibitionEventStartRunning: {
 			State:  model.ExhibitionStatusRunning,
 			Action: handleExhibitionStartRunning,
 		},
-		interfaces.ExhibitionEventCancel: {
+		model.ExhibitionEventCancel: {
 			State:  model.ExhibitionStatusCancelled,
 			Action: handleExhibitionCancel,
 		},
 	},
 	model.ExhibitionStatusRunning: {
-		interfaces.ExhibitionEventEnd: {
+		model.ExhibitionEventEnd: {
 			State:  model.ExhibitionStatusEnded,
 			Action: handleExhibitionEnd,
 		},
-		interfaces.ExhibitionEventCancel: {
+		model.ExhibitionEventCancel: {
 			State:  model.ExhibitionStatusCancelled,
 			Action: handleExhibitionCancel,
 		},
 	},
 }
 
-func (e *exhibition) HandleEvent(ctx context.Context, exhibitionID string, event interfaces.ExhibitionEvent, data interface{}) (err error) {
+func (e *exhibition) HandleEvent(ctx context.Context, exhibitionID string, event model.ExhibitionEvent, data interface{}) (err error) {
 	// 获取展会信息
 	exhibition, err := e.GetExhibition(ctx, exhibitionID)
 	if err != nil {

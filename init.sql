@@ -63,11 +63,11 @@ CREATE TABLE IF NOT EXISTS `t_merchant` (
     `id` VARCHAR(40) NOT NULL COMMENT '商户ID',
     `company_id` VARCHAR(40) NOT NULL COMMENT '关联的公司ID',
     `name` VARCHAR(100) NOT NULL COMMENT '商户名称',
-    `status` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '状态(0:待审核、1:已审核、2:已禁用)',
+    `status` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '状态(0:待审核、1:已审核、2:审核驳回、3:已禁用、4:注销)',
+    `website` VARCHAR(255) COMMENT '商户官网',
     `contact_person_name` VARCHAR(50) COMMENT '联系人姓名',
     `contact_person_phone` VARCHAR(32) COMMENT '联系人电话',
     `contact_person_email` VARCHAR(100) COMMENT '联系人邮箱',    
-    `website` VARCHAR(255) COMMENT '商户官网',
     `description` TEXT COMMENT '商户描述',
     `version` BIGINT(20) NOT NULL DEFAULT 0 COMMENT '版本号',
 

@@ -5,6 +5,19 @@ import (
 	"time"
 )
 
+// 展会事件类型
+type ExhibitionEvent uint8
+
+const (
+	ExhibitionEventSubmitForReview ExhibitionEvent = iota // 提交审核
+	ExhibitionEventApprove                                // 审核通过
+	ExhibitionEventReject                                 // 审核驳回
+	ExhibitionEventStartEnrolling                         // 开始报名(由定时任务触发)
+	ExhibitionEventStartRunning                           // 开始进行(由定时任务触发)
+	ExhibitionEventEnd                                    // 结束展会(由定时任务触发)
+	ExhibitionEventCancel                                 // 取消展会
+)
+
 type ExhibitionStatus int
 
 const (

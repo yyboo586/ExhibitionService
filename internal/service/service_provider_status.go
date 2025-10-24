@@ -82,6 +82,8 @@ func (s *ServiceProviderService) RecommitServiceProvider(ctx context.Context, re
 		ContactPersonPhone: req.ContactPersonPhone,
 		ContactPersonEmail: req.ContactPersonEmail,
 		Description:        req.Description,
+
+		CompanyInfo: companyInfo,
 	}
 	for _, v := range req.Files {
 		serviceProviderInfo.Files = append(serviceProviderInfo.Files, &model.File{
@@ -90,11 +92,7 @@ func (s *ServiceProviderService) RecommitServiceProvider(ctx context.Context, re
 		})
 	}
 
-	data := map[string]interface{}{
-		"company_info":          companyInfo,
-		"service_provider_info": serviceProviderInfo,
-	}
-	err = s.serviceProviderDomain.HandleEvent(ctx, req.ID, model.ServiceProviderEventReCommit, data)
+	err = s.serviceProviderDomain.HandleEvent(ctx, req.ID, model.ServiceProviderEventReCommit, serviceProviderInfo)
 	if err != nil {
 		return nil, err
 	}

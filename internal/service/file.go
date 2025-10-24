@@ -44,7 +44,7 @@ func (s *fileService) ReportFileUploadResult(ctx context.Context, req *system.Re
 		return nil, err
 	}
 
-	err = s.fileDomain.UpdateFileStatus(ctx, req.FileID, model.GetFileStatusFromBool(req.Success))
+	err = s.fileDomain.UpdateStatus(ctx, req.FileID, model.GetFileStatusFromBool(req.Success))
 	if err != nil {
 		return nil, err
 	}

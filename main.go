@@ -28,9 +28,11 @@ func main() {
 	fileDomain := logics.NewFile()
 	companyDomain := logics.NewCompany(fileDomain)
 	serviceProviderDomain := logics.NewServiceProvider(fileDomain, companyDomain)
+	merchantDomain := logics.NewMerchant(fileDomain, companyDomain)
 
 	fileService := service.NewFileService(fileDomain, drivenFileEngine)
 	serviceProviderService := service.NewServiceProviderService(serviceProviderDomain)
+	merchantService := service.NewMerchantService(merchantDomain, fileDomain, companyDomain)
 
 	s.Group("/api/v1/exhibition-service", func(group *ghttp.RouterGroup) {
 		group.Middleware(CORS)
@@ -38,6 +40,7 @@ func main() {
 		// 展会服务相关接口
 		group.Bind(
 			fileService,
+			merchantService,
 			serviceProviderService,
 		)
 	})

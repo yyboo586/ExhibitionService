@@ -3,6 +3,13 @@ module ExhibitionService
 go 1.24.2
 
 require (
+	github.com/gogf/gf/contrib/drivers/mysql/v2 v2.9.4
+	github.com/gogf/gf/contrib/nosql/redis/v2 v2.9.4
+	github.com/gogf/gf/v2 v2.9.4
+	github.com/google/uuid v1.6.0
+)
+
+require (
 	github.com/BurntSushi/toml v1.5.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/clbanning/mxj/v2 v2.7.0 // indirect
@@ -13,10 +20,6 @@ require (
 	github.com/go-logr/logr v1.4.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
-	github.com/gogf/gf/contrib/drivers/mysql/v2 v2.9.4 // indirect
-	github.com/gogf/gf/contrib/nosql/redis/v2 v2.9.4 // indirect
-	github.com/gogf/gf/v2 v2.9.4 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/grokify/html-strip-tags-go v0.1.0 // indirect
 	github.com/magiconair/properties v1.8.10 // indirect

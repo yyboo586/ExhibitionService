@@ -86,7 +86,7 @@ func (s *ServiceProviderService) GetServiceProvider(ctx context.Context, req *sy
 		serviceProviderInfo *model.ServiceProvider
 	)
 
-	serviceProviderInfo, err = s.serviceProviderDomain.GetServiceProvider(ctx, req.ID)
+	serviceProviderInfo, err = s.serviceProviderDomain.Get(ctx, req.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -97,23 +97,22 @@ func (s *ServiceProviderService) GetServiceProvider(ctx context.Context, req *sy
 	return res, nil
 }
 
-/*
-// ListServiceProviders 列表服务提供商
-func (s *ServiceProviderService) ListServiceProviders(ctx context.Context, req *model.ListServiceProvidersReq) (res *model.ListServiceProvidersRes, err error) {
-	serviceProviders, pageRes, err := s.serviceProviderDomain.ListServiceProviders(ctx, req.Name, req.PageReq)
+// ListServiceProviders 列表/搜索
+func (s *ServiceProviderService) ListServiceProviders(ctx context.Context, req *system.ListServiceProvidersReq) (res *system.ListServiceProvidersRes, err error) {
+	serviceProviders, pageRes, err := s.serviceProviderDomain.List(ctx, req.Name, &req.PageReq)
 	if err != nil {
 		return nil, err
 	}
 
-	res = &model.ListServiceProvidersRes{
-		ServiceProviders: serviceProviders,
-		PageRes:          pageRes,
+	res = &system.ListServiceProvidersRes{
+		PageRes: pageRes,
+	}
+	for _, v := range serviceProviders {
+		res.List = append(res.List, s.convertServiceProvider(v))
 	}
 
 	return res, nil
 }
-
-*/
 
 func (s *ServiceProviderService) convertServiceProvider(in *model.ServiceProvider) (out *system.ServiceProviderInfo) {
 	out = &system.ServiceProviderInfo{

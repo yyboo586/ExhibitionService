@@ -13,47 +13,65 @@ import (
 type MerchantService struct {
 	merchantDomain interfaces.IMerchant
 	fileDomain     interfaces.IFile
+	companyDomain  interfaces.ICompany
 }
 
-func NewMerchantService(merchantDomain interfaces.IMerchant, fileDomain interfaces.IFile) *MerchantService {
+func NewMerchantService(merchantDomain interfaces.IMerchant, fileDomain interfaces.IFile, companyDomain interfaces.ICompany) *MerchantService {
 	return &MerchantService{
 		merchantDomain: merchantDomain,
 		fileDomain:     fileDomain,
+		companyDomain:  companyDomain,
 	}
 }
 
-// CreateMerchant 创建展商
+// CreateMerchant 创建商户
 func (s *MerchantService) CreateMerchant(ctx context.Context, req *system.CreateMerchantReq) (res *system.CreateMerchantRes, err error) {
-	var merchantID string
+	var (
+		merchantID   string
+		companyInfo  *model.Company
+		merchantInfo *model.Merchant
+	)
+	companyInfo = &model.Company{
+		Name:        req.CompanyInfo.Name,
+		Country:     req.CompanyInfo.Country,
+		City:        req.CompanyInfo.City,
+		Address:     req.CompanyInfo.Address,
+		Email:       req.CompanyInfo.Email,
+		Description: req.CompanyInfo.Description,
 
-	// 创建展商
-	merchantInfo := &model.Merchant{
-		CompanyID:          req.CompanyID,
-		ExhibitionID:       req.ExhibitionID,
+		SocialCreditCode:      req.CompanyInfo.SocialCreditCode,
+		LegalPersonName:       req.CompanyInfo.LegalPersonName,
+		LegalPersonCardNumber: req.CompanyInfo.LegalPersonCardNumber,
+	}
+	for _, v := range req.CompanyInfo.Files {
+		companyInfo.Files = append(companyInfo.Files, &model.File{
+			FileID: v.FileID,
+			Type:   model.GetFileType(v.FileType),
+		})
+	}
+	// 创建商户
+	merchantInfo = &model.Merchant{
 		Name:               req.Name,
-		Description:        req.Description,
-		BoothNumber:        req.BoothNumber,
+		Website:            req.Website,
 		ContactPersonName:  req.ContactPersonName,
 		ContactPersonPhone: req.ContactPersonPhone,
 		ContactPersonEmail: req.ContactPersonEmail,
+		Description:        req.Description,
+
+		CompanyInfo: companyInfo,
+	}
+	for _, v := range req.Files {
+		merchantInfo.Files = append(merchantInfo.Files, &model.File{
+			FileID: v.FileID,
+			Type:   model.GetFileType(v.FileType),
+		})
 	}
 
-	// 开始事务
 	err = g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
-		// 创建展商
+		// 创建商户
 		merchantID, err = s.merchantDomain.Create(ctx, tx, merchantInfo)
 		if err != nil {
 			return err
-		}
-
-		// 更新展商文件
-		if len(req.Files) > 0 {
-			for _, v := range req.Files {
-				err := s.fileDomain.UpdateFileCustomInfo(ctx, tx, v.FileID, model.FileModuleMerchant, merchantID, model.GetFileType(v.FileType))
-				if err != nil {
-					return err
-				}
-			}
 		}
 
 		return nil
@@ -65,112 +83,75 @@ func (s *MerchantService) CreateMerchant(ctx context.Context, req *system.Create
 	return &system.CreateMerchantRes{ID: merchantID}, nil
 }
 
-// GetMerchant 获取展商详情
+// GetMerchant 获取商户详情
 func (s *MerchantService) GetMerchant(ctx context.Context, req *system.GetMerchantReq) (res *system.GetMerchantRes, err error) {
-	var (
-		merchant  *model.Merchant
-		fileInfos []*model.File
-	)
-
-	merchant, err = s.merchantDomain.GetMerchant(ctx, req.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	// 获取展商文件
-	fileInfos, err = s.fileDomain.ListFilesByModuleAndCustomID(ctx, model.FileModuleMerchant, merchant.ID)
+	merchant, err := s.merchantDomain.Get(ctx, req.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	res = &system.GetMerchantRes{
 		MerchantInfo: s.convertMerchant(merchant),
-		Files:        s.convertFiles(fileInfos),
 	}
 
 	return res, nil
 }
 
-// ListMerchants 列表展商
-func (s *MerchantService) ListMerchants(ctx context.Context, req *model.ListMerchantsReq) (res *model.ListMerchantsRes, err error) {
-	merchants, pageRes, err := s.merchantDomain.ListMerchants(ctx, req.ExhibitionID, req.Name, req.PageReq)
+func (s *MerchantService) ListMerchants(ctx context.Context, req *system.ListMerchantsReq) (res *system.ListMerchantsRes, err error) {
+	merchants, pageRes, err := s.merchantDomain.List(ctx, req.Name, &req.PageReq)
 	if err != nil {
 		return nil, err
 	}
 
-	res = &model.ListMerchantsRes{
-		Merchants: merchants,
-		PageRes:   pageRes,
+	res = &system.ListMerchantsRes{
+		PageRes: pageRes,
+	}
+	for _, v := range merchants {
+		res.List = append(res.List, s.convertMerchant(v))
 	}
 
 	return res, nil
 }
 
-// GetPendingMerchants 获取待审核展商列表
-func (s *MerchantService) GetPendingMerchants(ctx context.Context, req *model.PageReq) (res *model.ListMerchantsRes, err error) {
-	merchants, pageRes, err := s.merchantDomain.GetPendingList(ctx, req)
-	if err != nil {
-		return nil, err
+func (s *MerchantService) convertMerchant(in *model.Merchant) (out *system.MerchantInfo) {
+	out = &system.MerchantInfo{
+		ID:                  in.ID,
+		Name:                in.Name,
+		Status:              model.GetMerchantStatusText(in.Status),
+		Website:             in.Website,
+		ContactPersonName:   in.ContactPersonName,
+		ContactPersonPhone:  in.ContactPersonPhone,
+		ContactPersonEmail:  in.ContactPersonEmail,
+		Description:         in.Description,
+		CreateTime:          model.FormatTime(in.CreateTime),
+		SubmitForReviewTime: model.FormatTime(in.SubmitForReviewTime),
+		ApproveTime:         model.FormatTime(in.ApproveTime),
+		UpdateTime:          model.FormatTime(in.UpdateTime),
+
+		Files:       s.convertFiles(in.Files),
+		CompanyInfo: s.convertCompanyInfo(in.CompanyInfo),
 	}
 
-	res = &model.ListMerchantsRes{
-		Merchants: merchants,
-		PageRes:   pageRes,
-	}
-
-	return res, nil
+	return out
 }
 
-// ApproveMerchant 审核通过展商
-func (s *MerchantService) ApproveMerchant(ctx context.Context, req *system.ApproveMerchantReq) (res *system.ApproveMerchantRes, err error) {
-	err = s.merchantDomain.HandleEvent(ctx, req.ID, interfaces.MerchantEventApprove, nil)
-	if err != nil {
-		return nil, err
-	}
-	return &system.ApproveMerchantRes{}, nil
-}
+func (s *MerchantService) convertCompanyInfo(in *model.Company) *system.CompanyInfo {
+	return &system.CompanyInfo{
+		ID:          in.ID,
+		Name:        in.Name,
+		Country:     in.Country,
+		City:        in.City,
+		Address:     in.Address,
+		Email:       in.Email,
+		Description: in.Description,
 
-// RejectMerchant 审核拒绝展商
-func (s *MerchantService) RejectMerchant(ctx context.Context, req *system.RejectMerchantReq) (res *system.RejectMerchantRes, err error) {
-	err = s.merchantDomain.HandleEvent(ctx, req.ID, interfaces.MerchantEventReject, nil)
-	if err != nil {
-		return nil, err
-	}
-	return &system.RejectMerchantRes{}, nil
-}
+		BusinessLicense:       in.BusinessLicense,
+		SocialCreditCode:      in.SocialCreditCode,
+		LegalPersonName:       in.LegalPersonName,
+		LegalPersonCardNumber: in.LegalPersonCardNumber,
+		LegalPersonPhoto:      in.LegalPersonPhoto,
 
-// DisableMerchant 禁用展商
-func (s *MerchantService) DisableMerchant(ctx context.Context, req *system.DisableMerchantReq) (res *system.DisableMerchantRes, err error) {
-	err = s.merchantDomain.HandleEvent(ctx, req.ID, interfaces.MerchantEventDisable, nil)
-	if err != nil {
-		return nil, err
-	}
-	return &system.DisableMerchantRes{}, nil
-}
-
-// EnableMerchant 启用展商
-func (s *MerchantService) EnableMerchant(ctx context.Context, req *system.EnableMerchantReq) (res *system.EnableMerchantRes, err error) {
-	err = s.merchantDomain.HandleEvent(ctx, req.ID, interfaces.MerchantEventEnable, nil)
-	if err != nil {
-		return nil, err
-	}
-	return &system.EnableMerchantRes{}, nil
-}
-
-func (s *MerchantService) convertMerchant(in *model.Merchant) system.MerchantInfo {
-	return system.MerchantInfo{
-		ID:                 in.ID,
-		CompanyID:          in.CompanyID,
-		ExhibitionID:       in.ExhibitionID,
-		Name:               in.Name,
-		Status:             model.GetMerchantStatusText(in.Status),
-		Description:        in.Description,
-		BoothNumber:        in.BoothNumber,
-		ContactPersonName:  in.ContactPersonName,
-		ContactPersonPhone: in.ContactPersonPhone,
-		ContactPersonEmail: in.ContactPersonEmail,
-		CreateTime:         model.FormatTime(in.CreateTime),
-		UpdateTime:         model.FormatTime(in.UpdateTime),
+		Files: s.convertFiles(in.Files),
 	}
 }
 

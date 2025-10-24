@@ -193,7 +193,7 @@ func (c *company) recommitMerchant(ctx context.Context, tx gdb.TX, in *model.Com
 // 检查文件是否上传成功
 func (c *company) checkFileUploadSuccess(ctx context.Context, files []*model.File) (err error) {
 	for _, v := range files {
-		fileInfo, err := c.fileDomain.GetFile(ctx, v.FileID)
+		fileInfo, err := c.fileDomain.Get(ctx, v.FileID)
 		if err != nil {
 			return err
 		}
@@ -229,7 +229,7 @@ func (c *company) checkFileComplete(ctx context.Context, files []*model.File) (e
 // 建立 文件 - 公司 关联
 func (c *company) createFileRelation(ctx context.Context, tx gdb.TX, companyID string, files []*model.File) (err error) {
 	for _, v := range files {
-		err = c.fileDomain.UpdateFileCustomInfo(ctx, tx, v.FileID, model.FileModuleCompany, companyID, v.Type)
+		err = c.fileDomain.UpdateCustomInfo(ctx, tx, v.FileID, model.FileModuleCompany, companyID, v.Type)
 		if err != nil {
 			return err
 		}
@@ -239,7 +239,7 @@ func (c *company) createFileRelation(ctx context.Context, tx gdb.TX, companyID s
 
 // 清除文件 自定义属性
 func (c *company) clearFileRelation(ctx context.Context, tx gdb.TX, companyID string) (err error) {
-	err = c.fileDomain.ClearFileCustomInfo(ctx, tx, model.FileModuleCompany, companyID)
+	err = c.fileDomain.ClearCustomInfo(ctx, tx, model.FileModuleCompany, companyID)
 	if err != nil {
 		return err
 	}
@@ -247,7 +247,7 @@ func (c *company) clearFileRelation(ctx context.Context, tx gdb.TX, companyID st
 }
 
 func (c *company) getFiles(ctx context.Context, companyID string) (files []*model.File, err error) {
-	files, err = c.fileDomain.ListFilesByModuleAndCustomID(ctx, model.FileModuleCompany, companyID)
+	files, err = c.fileDomain.ListByModuleAndCustomID(ctx, model.FileModuleCompany, companyID)
 	if err != nil {
 		return nil, err
 	}

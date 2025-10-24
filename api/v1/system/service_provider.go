@@ -28,23 +28,6 @@ type CreateServiceProviderRes struct {
 	ID     string `json:"id" dc:"服务提供商ID"`
 }
 
-// 修改服务提供商基本信息
-type EditSPBasicInfoReq struct {
-	g.Meta             `path:"/service-provider/{id}/basic-info" method:"patch" tags:"展会公司" summary:"编辑"`
-	ID                 string      `p:"id" v:"required#服务提供商ID不能为空" dc:"服务提供商ID"`
-	Name               string      `json:"name" v:"required#服务提供商名称不能为空" dc:"服务提供商名称"`
-	Website            string      `json:"website" dc:"官网"`
-	ContactPersonName  string      `json:"contact_person_name" v:"required#联系人姓名不能为空" dc:"联系人姓名"`
-	ContactPersonPhone string      `json:"contact_person_phone" v:"required#联系人电话不能为空" dc:"联系人电话"`
-	ContactPersonEmail string      `json:"contact_person_email" v:"required#联系人邮箱不能为空" dc:"联系人邮箱"`
-	Description        string      `json:"description" v:"required#服务提供商描述不能为空" dc:"服务提供商描述"`
-	Files              []*FileInfo `json:"files" dc:"服务提供商相关文件"`
-}
-
-type EditSPBasicInfoRes struct {
-	g.Meta `mime:"application/json"`
-}
-
 type GetServiceProviderReq struct {
 	g.Meta `path:"/service-provider/{id}" method:"get" tags:"展会公司" summary:"详情"`
 	ID     string `p:"id" v:"required#服务提供商ID不能为空" dc:"服务提供商ID"`
