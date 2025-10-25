@@ -3,6 +3,7 @@ package main
 import (
 	"ExhibitionService/internal/drivenadapter"
 	"ExhibitionService/internal/logics"
+	"ExhibitionService/internal/model"
 	"ExhibitionService/internal/service"
 	"mime"
 	"net/http"
@@ -23,16 +24,29 @@ func main() {
 	s.SetOpenApiPath("/api.json")
 	s.SetSwaggerPath("/swagger")
 
+	asyncTaskManager := logics.NewAsyncTask()
+
 	drivenFileEngine := drivenadapter.NewFileEngine()
 
 	fileDomain := logics.NewFile()
 	companyDomain := logics.NewCompany(fileDomain)
 	serviceProviderDomain := logics.NewServiceProvider(fileDomain, companyDomain)
 	merchantDomain := logics.NewMerchant(fileDomain, companyDomain)
+	exhibitionDomain := logics.NewExhibition(fileDomain, merchantDomain, asyncTaskManager)
 
 	fileService := service.NewFileService(fileDomain, drivenFileEngine)
 	serviceProviderService := service.NewServiceProviderService(serviceProviderDomain)
 	merchantService := service.NewMerchantService(merchantDomain, fileDomain, companyDomain)
+	exhibitionService := service.NewExhibitionService(exhibitionDomain, serviceProviderDomain)
+
+	// 注册异步任务处理器
+	asyncTaskManager.RegisterHandler(model.TaskTypeExhibitionAutoStartEnrolling, exhibitionDomain.HandleTaskAutoStartEnrolling)
+	asyncTaskManager.RegisterHandler(model.TaskTypeExhibitionAutoEndEnrolling, exhibitionDomain.HandleTaskAutoEndEnrolling)
+	asyncTaskManager.RegisterHandler(model.TaskTypeExhibitionAutoStartRunning, exhibitionDomain.HandleTaskAutoStartRunning)
+	asyncTaskManager.RegisterHandler(model.TaskTypeExhibitionAutoEnd, exhibitionDomain.HandleTaskAutoEnd)
+
+	asyncTaskManager.Start()
+	defer asyncTaskManager.Stop()
 
 	s.Group("/api/v1/exhibition-service", func(group *ghttp.RouterGroup) {
 		group.Middleware(CORS)
@@ -42,6 +56,8 @@ func main() {
 			fileService,
 			merchantService,
 			serviceProviderService,
+			merchantService,
+			exhibitionService,
 		)
 	})
 

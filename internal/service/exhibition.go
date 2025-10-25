@@ -120,88 +120,6 @@ func (s *ExhibitionService) ListExhibitions(ctx context.Context, req *system.Lis
 	return res, nil
 }
 
-/*
-// SubmitExhibitionForReview 提交展会审核
-func (s *ExhibitionService) SubmitExhibitionForReview(ctx context.Context, req *system.SubmitExhibitionForReviewReq) (res *system.SubmitExhibitionForReviewRes, err error) {
-	err = s.exhibitionDomain.HandleEvent(ctx, req.ID, interfaces.ExhibitionEventSubmitForReview, nil)
-	if err != nil {
-		return nil, err
-	}
-	return &system.SubmitExhibitionForReviewRes{}, nil
-}
-
-// GetSubmitForReviewList 获取待审核列表
-func (s *ExhibitionService) GetSubmitForReviewList(ctx context.Context, req *system.GetSubmitForReviewListReq) (res *system.GetSubmitForReviewListRes, err error) {
-	exhibitions, pageRes, err := s.exhibitionDomain.GetPendingList(ctx, &req.PageReq)
-	if err != nil {
-		return nil, err
-	}
-
-	res = &system.GetSubmitForReviewListRes{PageRes: pageRes}
-	for _, v := range exhibitions {
-		var (
-			exhibitionOrganizers []*model.ExhibitionOrganizer
-			organizers           []*model.Organizer
-			fileInfos            []*model.File
-		)
-
-		// 获取主办方信息
-		exhibitionOrganizers, err = s.organizerDomain.GetExhibitionOrganizers(ctx, v.ID)
-		if err != nil {
-			return nil, err
-		}
-
-		for _, eo := range exhibitionOrganizers {
-			tmp, err := s.organizerDomain.GetOrganizer(ctx, eo.OrganizerID)
-			if err != nil {
-				return nil, err
-			}
-			organizers = append(organizers, tmp)
-		}
-
-		// 获取展会文件
-		fileInfos, err = s.fileDomain.ListFilesByModuleAndCustomID(ctx, model.FileModuleExhibition, v.ID)
-		if err != nil {
-			return nil, err
-		}
-		res.List = append(res.List, &system.ExhibitionUnit{
-			ExhibitionInfo: s.convertExhibition(v),
-			Files:          s.convertFiles(fileInfos),
-			Organizers:     s.convertOrganizers(organizers),
-		})
-	}
-	return res, nil
-}
-
-// ApproveExhibition 审核通过展会
-func (s *ExhibitionService) ApproveExhibition(ctx context.Context, req *system.ApproveExhibitionReq) (res *system.ApproveExhibitionRes, err error) {
-	err = s.exhibitionDomain.HandleEvent(ctx, req.ID, interfaces.ExhibitionEventApprove, nil)
-	if err != nil {
-		return nil, err
-	}
-	return &system.ApproveExhibitionRes{}, nil
-}
-
-// RejectExhibition 审核驳回展会
-func (s *ExhibitionService) RejectExhibition(ctx context.Context, req *system.RejectExhibitionReq) (res *system.RejectExhibitionRes, err error) {
-	err = s.exhibitionDomain.HandleEvent(ctx, req.ID, interfaces.ExhibitionEventReject, nil)
-	if err != nil {
-		return nil, err
-	}
-	return &system.RejectExhibitionRes{}, nil
-}
-
-// CancelExhibition 取消展会
-func (s *ExhibitionService) CancelExhibition(ctx context.Context, req *system.CancelExhibitionReq) (res *system.CancelExhibitionRes, err error) {
-	err = s.exhibitionDomain.HandleEvent(ctx, req.ID, interfaces.ExhibitionEventCancel, nil)
-	if err != nil {
-		return nil, err
-	}
-	return &system.CancelExhibitionRes{}, nil
-}
-
-*/
-
 func (s *ExhibitionService) convertExhibition(in *model.Exhibition) *system.ExhibitionInfo {
 	return &system.ExhibitionInfo{
 		ID:           in.ID,
@@ -253,4 +171,74 @@ func (s *ExhibitionService) convertFiles(in []*model.File) (out []*system.FileIn
 		})
 	}
 	return out
+}
+
+// ApplyForExhibition 商户申请参加展会
+func (s *ExhibitionService) ApplyForExhibition(ctx context.Context, req *system.ApplyForExhibitionReq) (res *system.ApplyForExhibitionRes, err error) {
+	err = g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		err = s.exhibitionDomain.CreateApplyForExhibition(ctx, tx, req.ExhibitionID, req.MerchantID)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &system.ApplyForExhibitionRes{Message: "申请提交成功，等待审核"}, nil
+}
+
+// GetMerchantApplication 获取商户申请状态
+func (s *ExhibitionService) GetMerchantApplication(ctx context.Context, req *system.GetMerchantApplicationReq) (res *system.GetMerchantApplicationRes, err error) {
+	application, err := s.exhibitionDomain.GetExMerchantApplication(ctx, req.ExhibitionID, req.MerchantID)
+	if err != nil {
+		return nil, err
+	}
+
+	res = &system.GetMerchantApplicationRes{
+		ExhibitionMerchantInfo: s.convertExhibitionMerchant(application),
+	}
+	return res, nil
+}
+
+// ListExhibitionApplications 获取展会申请列表
+func (s *ExhibitionService) ListExhibitionApplications(ctx context.Context, req *system.ListExhibitionApplicationsReq) (res *system.ListExhibitionApplicationsRes, err error) {
+	applications, pageRes, err := s.exhibitionDomain.ListExhibitionApplications(ctx, req.ExhibitionID, &req.PageReq)
+	if err != nil {
+		return nil, err
+	}
+
+	res = &system.ListExhibitionApplicationsRes{PageRes: pageRes}
+	for _, v := range applications {
+		res.List = append(res.List, s.convertExhibitionMerchant(v))
+	}
+	return res, nil
+}
+
+// ListMerchantApplications 获取商户申请列表
+func (s *ExhibitionService) ListMerchantApplications(ctx context.Context, req *system.ListMerchantApplicationsReq) (res *system.ListMerchantApplicationsRes, err error) {
+	applications, pageRes, err := s.exhibitionDomain.ListMerchantApplications(ctx, req.MerchantID, &req.PageReq)
+	if err != nil {
+		return nil, err
+	}
+
+	res = &system.ListMerchantApplicationsRes{PageRes: pageRes}
+	for _, v := range applications {
+		res.List = append(res.List, s.convertExhibitionMerchant(v))
+	}
+	return res, nil
+}
+
+func (s *ExhibitionService) convertExhibitionMerchant(in *model.ExhibitionMerchant) *system.ExhibitionMerchantInfo {
+	return &system.ExhibitionMerchantInfo{
+		ID:                  in.ID,
+		ExhibitionID:        in.ExhibitionID,
+		MerchantID:          in.MerchantID,
+		Status:              model.GetExMerchantStatusText(in.Status),
+		CreateTime:          model.FormatTime(in.CreateTime),
+		SubmitForReviewTime: model.FormatTime(in.SubmitForReviewTime),
+		ApproveTime:         model.FormatTime(in.ApproveTime),
+		UpdateTime:          model.FormatTime(in.UpdateTime),
+	}
 }

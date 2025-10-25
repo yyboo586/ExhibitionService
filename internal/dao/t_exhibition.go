@@ -19,3 +19,13 @@ var ExOrganizer = exOrganizerDao{
 type exOrganizerDao struct {
 	*internal.TExOrganizer
 }
+
+var (
+	ExhibitionMerchant = exhibitionMerchantDao{
+		internal.NewTExhibitionMerchant(),
+	}
+)
+
+type exhibitionMerchantDao struct {
+	*internal.TExhibitionMerchant
+}

@@ -5,6 +5,7 @@ import (
 	"context"
 
 	"github.com/gogf/gf/v2/database/gdb"
+	asyncTask "github.com/yyboo586/common/AsyncTask"
 )
 
 type IFile interface {
@@ -80,9 +81,32 @@ type IExhibition interface {
 	ListExhibitions(ctx context.Context, name string, pageReq *model.PageReq) (out []*model.Exhibition, pageRes *model.PageRes, err error)
 
 	// 获取待审核列表
-	// GetPendingList(ctx context.Context, pageReq *model.PageReq) (out []*model.Exhibition, pageRes *model.PageRes, err error)
+	GetPendingList(ctx context.Context, pageReq *model.PageReq) (out []*model.Exhibition, pageRes *model.PageRes, err error)
 
 	// 状态流转
 	// 处理展会状态事件
-	// HandleEvent(ctx context.Context, exhibitionID string, event model.ExhibitionEvent, data interface{}) (err error)
+	HandleEvent(ctx context.Context, exhibitionID string, event model.ExhibitionEvent, data interface{}) (err error)
+
+	// 异步任务
+	// 处理展会自动开始报名任务
+	HandleTaskAutoStartEnrolling(ctx context.Context, task *asyncTask.Task) (err error)
+	// 处理展会自动结束报名任务
+	HandleTaskAutoEndEnrolling(ctx context.Context, task *asyncTask.Task) (err error)
+	// 处理展会自动开始进行任务
+	HandleTaskAutoStartRunning(ctx context.Context, task *asyncTask.Task) (err error)
+	// 处理展会自动结束任务
+	HandleTaskAutoEnd(ctx context.Context, task *asyncTask.Task) (err error)
+
+	// 商户申请参加展会
+	CreateApplyForExhibition(ctx context.Context, tx gdb.TX, exhibitionID string, merchantID string) (err error)
+	// 获取商户在展会中的申请状态
+	GetExMerchantApplication(ctx context.Context, exhibitionID string, merchantID string) (out *model.ExhibitionMerchant, err error)
+	// 获取展会的商户申请列表
+	ListExhibitionApplications(ctx context.Context, exhibitionID string, pageReq *model.PageReq) (out []*model.ExhibitionMerchant, pageRes *model.PageRes, err error)
+	// 获取商户的展会申请列表
+	ListMerchantApplications(ctx context.Context, merchantID string, pageReq *model.PageReq) (out []*model.ExhibitionMerchant, pageRes *model.PageRes, err error)
+
+	// 状态流转
+	// 处理展会与商户关联状态事件
+	HandleExMerchantEvent(ctx context.Context, exhibitionID string, merchantID string, event model.ExMerchantEvent, data interface{}) (err error)
 }

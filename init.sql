@@ -115,6 +115,20 @@ CREATE TABLE IF NOT EXISTS `t_exhibition_organizer` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB COMMENT='展会与服务提供商关联表';
 
+CREATE TABLE IF NOT EXISTS `t_exhibition_merchant` (
+    `id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `exhibition_id` VARCHAR(40) NOT NULL COMMENT '展会ID',
+    `merchant_id` VARCHAR(40) NOT NULL COMMENT '商户ID',
+    `status` TINYINT(1) NOT NULL COMMENT '状态(0:待审核、1:审核通过、2:审核拒绝、3:已退出)',
+    `create_time` BIGINT(20) NOT NULL COMMENT '创建时间',
+    `submit_for_review_time` BIGINT(20) COMMENT '提交审核时间',
+    `approve_time` BIGINT(20) COMMENT '审核通过时间',
+    `update_time` BIGINT(20) NOT NULL COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `idx_exhibition_merchant` (`exhibition_id`, `merchant_id`)
+    KEY `idx_merchant_id` (`merchant_id`)
+) ENGINE=InnoDB COMMENT='展会与商户关联表';
+
 
 CREATE TABLE IF NOT EXISTS `t_exhibition_stats` (
     `id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '统计ID',

@@ -1,6 +1,7 @@
 server:
   name: "exhibition-service"
   address: "0.0.0.0:9850"
+  sessionPath: "./resource/data/session"
   dumpRouterMap: true
   routeOverWrite: true
   openapiPath: "/api.json"

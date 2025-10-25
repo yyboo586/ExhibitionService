@@ -14,6 +14,7 @@ import (
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/google/uuid"
+	asyncTask "github.com/yyboo586/common/AsyncTask"
 )
 
 var (
@@ -22,14 +23,23 @@ var (
 )
 
 type exhibition struct {
-	fileDomain interfaces.IFile
+	fileDomain     interfaces.IFile
+	merchantDomain interfaces.IMerchant
+	asyncTask      asyncTask.Manager
+
+	transitionMap           map[model.ExhibitionStatus]map[model.ExhibitionEvent]ExhibitionTransition
+	exMerchantTransitionMap map[model.ExMerchantStatus]map[model.ExMerchantEvent]ExMerchantTransition
 }
 
-func NewExhibition(fileDomain interfaces.IFile) interfaces.IExhibition {
+func NewExhibition(fileDomain interfaces.IFile, merchantDomain interfaces.IMerchant, asyncTask asyncTask.Manager) interfaces.IExhibition {
 	exhibitionOnce.Do(func() {
 		exhibitionDomain = &exhibition{
-			fileDomain: fileDomain,
+			fileDomain:     fileDomain,
+			merchantDomain: merchantDomain,
+			asyncTask:      asyncTask,
 		}
+		exhibitionDomain.initTransitionMap()
+		exhibitionDomain.initExMerchantTransitionMap()
 	})
 	return exhibitionDomain
 }

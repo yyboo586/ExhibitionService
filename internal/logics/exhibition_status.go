@@ -4,32 +4,14 @@ import (
 	"ExhibitionService/internal/dao"
 	"ExhibitionService/internal/model"
 	"context"
+	"encoding/json"
 	"time"
 
+	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	asyncTask "github.com/yyboo586/common/AsyncTask"
 )
-
-func GetExhibitionEventText(event model.ExhibitionEvent) string {
-	switch event {
-	case model.ExhibitionEventSubmitForReview:
-		return "提交审核"
-	case model.ExhibitionEventApprove:
-		return "审核通过"
-	case model.ExhibitionEventReject:
-		return "审核驳回"
-	case model.ExhibitionEventStartEnrolling:
-		return "开始报名"
-	case model.ExhibitionEventStartRunning:
-		return "开始进行"
-	case model.ExhibitionEventEnd:
-		return "结束展会"
-	case model.ExhibitionEventCancel:
-		return "取消展会"
-	default:
-		return "未知事件"
-	}
-}
 
 type ExhibitionAction func(ctx context.Context, exhibition *model.Exhibition, data interface{}) error
 
@@ -38,57 +20,65 @@ type ExhibitionTransition struct {
 	Action ExhibitionAction
 }
 
-var exhibitionTransitionMap = map[model.ExhibitionStatus]map[model.ExhibitionEvent]ExhibitionTransition{
-	model.ExhibitionStatusPreparing: {
-		model.ExhibitionEventSubmitForReview: {
-			State:  model.ExhibitionStatusPending,
-			Action: handleExhibitionSubmitForReview,
+func (e *exhibition) initTransitionMap() {
+	e.transitionMap = map[model.ExhibitionStatus]map[model.ExhibitionEvent]ExhibitionTransition{
+		model.ExhibitionStatusPreparing: {
+			model.ExhibitionEventSubmitForReview: {
+				State:  model.ExhibitionStatusPending,
+				Action: e.handleExhibitionSubmitForReview,
+			},
+			model.ExhibitionEventCancel: {
+				State:  model.ExhibitionStatusCancelled,
+				Action: e.handleExhibitionCancel,
+			},
 		},
-		model.ExhibitionEventCancel: {
-			State:  model.ExhibitionStatusCancelled,
-			Action: handleExhibitionCancel,
+		model.ExhibitionStatusPending: {
+			model.ExhibitionEventApprove: {
+				State:  model.ExhibitionStatusApproved,
+				Action: e.handleExhibitionApprove,
+			},
+			model.ExhibitionEventReject: {
+				State:  model.ExhibitionStatusPreparing,
+				Action: e.handleExhibitionReject,
+			},
 		},
-	},
-	model.ExhibitionStatusPending: {
-		model.ExhibitionEventApprove: {
-			State:  model.ExhibitionStatusApproved,
-			Action: handleExhibitionApprove,
+		model.ExhibitionStatusApproved: {
+			model.ExhibitionEventStartEnrolling: {
+				State:  model.ExhibitionStatusEnrolling,
+				Action: e.handleExhibitionStartEnrolling,
+			},
+			model.ExhibitionEventCancel: {
+				State:  model.ExhibitionStatusCancelled,
+				Action: e.handleExhibitionCancel,
+			},
 		},
-		model.ExhibitionEventReject: {
-			State:  model.ExhibitionStatusPreparing,
-			Action: handleExhibitionReject,
+		model.ExhibitionStatusEnrolling: {
+			model.ExhibitionEventEndEnrolling: {
+				State:  model.ExhibitionStatusEnrollingEnded,
+				Action: e.handleExhibitionEndEnrolling,
+			},
+			model.ExhibitionEventCancel: {
+				State:  model.ExhibitionStatusCancelled,
+				Action: e.handleExhibitionCancel,
+			},
 		},
-	},
-	model.ExhibitionStatusApproved: {
-		model.ExhibitionEventStartEnrolling: {
-			State:  model.ExhibitionStatusEnrolling,
-			Action: handleExhibitionStartEnrolling,
+		model.ExhibitionStatusEnrollingEnded: {
+			model.ExhibitionEventStartRunning: {
+				State:  model.ExhibitionStatusRunning,
+				Action: e.handleExhibitionStartRunning,
+			},
+			model.ExhibitionEventCancel: {
+				State:  model.ExhibitionStatusCancelled,
+				Action: e.handleExhibitionCancel,
+			},
 		},
-		model.ExhibitionEventCancel: {
-			State:  model.ExhibitionStatusCancelled,
-			Action: handleExhibitionCancel,
+		model.ExhibitionStatusRunning: {
+			model.ExhibitionEventEnd: {
+				State:  model.ExhibitionStatusEnded,
+				Action: e.handleExhibitionEnd,
+			},
 		},
-	},
-	model.ExhibitionStatusEnrolling: {
-		model.ExhibitionEventStartRunning: {
-			State:  model.ExhibitionStatusRunning,
-			Action: handleExhibitionStartRunning,
-		},
-		model.ExhibitionEventCancel: {
-			State:  model.ExhibitionStatusCancelled,
-			Action: handleExhibitionCancel,
-		},
-	},
-	model.ExhibitionStatusRunning: {
-		model.ExhibitionEventEnd: {
-			State:  model.ExhibitionStatusEnded,
-			Action: handleExhibitionEnd,
-		},
-		model.ExhibitionEventCancel: {
-			State:  model.ExhibitionStatusCancelled,
-			Action: handleExhibitionCancel,
-		},
-	},
+	}
 }
 
 func (e *exhibition) HandleEvent(ctx context.Context, exhibitionID string, event model.ExhibitionEvent, data interface{}) (err error) {
@@ -99,21 +89,21 @@ func (e *exhibition) HandleEvent(ctx context.Context, exhibitionID string, event
 	}
 
 	// 验证当前状态是否支持该事件
-	transition, ok := exhibitionTransitionMap[exhibition.Status][event]
+	transition, ok := e.transitionMap[exhibition.Status][event]
 	if !ok {
-		return gerror.Newf("exhibition current status: %s, not supported event: %s", model.GetExhibitionStatusText(exhibition.Status), GetExhibitionEventText(event))
+		return gerror.Newf("exhibition current status: %s, not supported event: %s", model.GetExhibitionStatusText(exhibition.Status), model.GetExhibitionEventText(event))
 	}
 
 	// 执行状态操作
 	err = transition.Action(ctx, exhibition, data)
 	if err != nil {
-		return gerror.Newf("handle event failed, exhibition id: %s, event: %s, err: %s", exhibitionID, GetExhibitionEventText(event), err.Error())
+		return gerror.Newf("handle event failed, exhibition id: %s, event: %s, err: %s", exhibitionID, model.GetExhibitionEventText(event), err.Error())
 	}
 
 	return nil
 }
 
-func handleExhibitionSubmitForReview(ctx context.Context, exhibition *model.Exhibition, data interface{}) (err error) {
+func (e *exhibition) handleExhibitionSubmitForReview(ctx context.Context, exhibition *model.Exhibition, data interface{}) (err error) {
 	result, err := dao.Exhibition.Ctx(ctx).Data(g.Map{
 		dao.Exhibition.Columns().Status:     int(model.ExhibitionStatusPending),
 		dao.Exhibition.Columns().Version:    exhibition.Version + 1,
@@ -137,31 +127,59 @@ func handleExhibitionSubmitForReview(ctx context.Context, exhibition *model.Exhi
 	return nil
 }
 
-func handleExhibitionApprove(ctx context.Context, exhibition *model.Exhibition, data interface{}) (err error) {
-	result, err := dao.Exhibition.Ctx(ctx).Data(g.Map{
+func (e *exhibition) handleExhibitionApprove(ctx context.Context, exhibition *model.Exhibition, data interface{}) (err error) {
+	exInfo := map[string]any{
 		dao.Exhibition.Columns().Status:     int(model.ExhibitionStatusApproved),
 		dao.Exhibition.Columns().Version:    exhibition.Version + 1,
 		dao.Exhibition.Columns().UpdateTime: time.Now().Unix(),
-	}).
-		Where(dao.Exhibition.Columns().ID, exhibition.ID).
-		Where(dao.Exhibition.Columns().Version, exhibition.Version).
-		Update()
+	}
+	taskContent := map[string]any{
+		"exhibition_id":      exhibition.ID,
+		"registration_start": exhibition.RegistrationStart.Unix(),
+	}
+	taskContentBytes, err := json.Marshal(taskContent)
+	if err != nil {
+		return gerror.Newf("approve exhibition failed, marshal task content failed, err: %s", err.Error())
+	}
+
+	err = g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		err = e.asyncTask.AddScheduledTaskWithTx(ctx, tx, model.TaskTypeExhibitionAutoStartEnrolling, exhibition.ID, taskContentBytes, exhibition.RegistrationStart)
+		if err != nil {
+			return gerror.Newf("approve exhibition failed, add scheduled task failed, err: %s", err.Error())
+		}
+
+		result, err := dao.Exhibition.Ctx(ctx).Data(exInfo).
+			Where(dao.Exhibition.Columns().ID, exhibition.ID).
+			Where(dao.Exhibition.Columns().Version, exhibition.Version).
+			Update()
+		if err != nil {
+			return gerror.Newf("approve exhibition failed, err: %s", err.Error())
+		}
+
+		rowsAffected, err := result.RowsAffected()
+		if err != nil {
+			return gerror.Newf("approve exhibition failed, get rows affected failed, err: %s", err.Error())
+		}
+		if rowsAffected == 0 {
+			return gerror.Newf("approve exhibition failed, %v", model.ErrConcurrentUpdate)
+		}
+
+		return nil
+	})
 	if err != nil {
 		return gerror.Newf("approve exhibition failed, err: %s", err.Error())
 	}
 
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return gerror.Newf("approve exhibition failed, get rows affected failed, err: %s", err.Error())
-	}
-	if rowsAffected == 0 {
-		return gerror.Newf("approve exhibition failed, %v", model.ErrConcurrentUpdate)
-	}
+	e.asyncTask.WakeUp(model.TaskTypeExhibitionAutoStartEnrolling)
 
 	return nil
 }
 
-func handleExhibitionReject(ctx context.Context, exhibition *model.Exhibition, data interface{}) (err error) {
+func (e *exhibition) HandleTaskAutoStartEnrolling(ctx context.Context, task *asyncTask.Task) (err error) {
+	return e.HandleEvent(ctx, task.CustomID, model.ExhibitionEventStartEnrolling, task)
+}
+
+func (e *exhibition) handleExhibitionReject(ctx context.Context, exhibition *model.Exhibition, data interface{}) (err error) {
 	result, err := dao.Exhibition.Ctx(ctx).Data(g.Map{
 		dao.Exhibition.Columns().Status:     int(model.ExhibitionStatusPreparing),
 		dao.Exhibition.Columns().Version:    exhibition.Version + 1,
@@ -185,55 +203,163 @@ func handleExhibitionReject(ctx context.Context, exhibition *model.Exhibition, d
 	return nil
 }
 
-func handleExhibitionStartEnrolling(ctx context.Context, exhibition *model.Exhibition, data interface{}) (err error) {
-	result, err := dao.Exhibition.Ctx(ctx).Data(g.Map{
+func (e *exhibition) handleExhibitionStartEnrolling(ctx context.Context, exhibition *model.Exhibition, data interface{}) (err error) {
+	exInfo := map[string]any{
 		dao.Exhibition.Columns().Status:     int(model.ExhibitionStatusEnrolling),
 		dao.Exhibition.Columns().Version:    exhibition.Version + 1,
 		dao.Exhibition.Columns().UpdateTime: time.Now().Unix(),
-	}).
-		Where(dao.Exhibition.Columns().ID, exhibition.ID).
-		Where(dao.Exhibition.Columns().Version, exhibition.Version).
-		Update()
+	}
+	taskContent := map[string]any{
+		"exhibition_id":    exhibition.ID,
+		"registration_end": exhibition.RegistrationEnd.Unix(),
+	}
+	taskContentBytes, err := json.Marshal(taskContent)
+	if err != nil {
+		return gerror.Newf("start enrolling failed, marshal task content failed, err: %s", err.Error())
+	}
+
+	err = g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		err = e.asyncTask.AddScheduledTaskWithTx(ctx, tx, model.TaskTypeExhibitionAutoEndEnrolling, exhibition.ID, taskContentBytes, exhibition.RegistrationEnd)
+		if err != nil {
+			return gerror.Newf("start enrolling failed, add scheduled task failed, err: %s", err.Error())
+		}
+
+		result, err := dao.Exhibition.Ctx(ctx).Data(exInfo).
+			Where(dao.Exhibition.Columns().ID, exhibition.ID).
+			Where(dao.Exhibition.Columns().Version, exhibition.Version).
+			Update()
+		if err != nil {
+			return gerror.Newf("start enrolling failed, err: %s", err.Error())
+		}
+
+		rowsAffected, err := result.RowsAffected()
+		if err != nil {
+			return gerror.Newf("start enrolling failed, get rows affected failed, err: %s", err.Error())
+		}
+		if rowsAffected == 0 {
+			return gerror.Newf("start enrolling failed, %v", model.ErrConcurrentUpdate)
+		}
+
+		return nil
+	})
 	if err != nil {
 		return gerror.Newf("start enrolling failed, err: %s", err.Error())
 	}
 
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return gerror.Newf("start enrolling failed, get rows affected failed, err: %s", err.Error())
-	}
-	if rowsAffected == 0 {
-		return gerror.Newf("start enrolling failed, %v", model.ErrConcurrentUpdate)
-	}
+	e.asyncTask.WakeUp(model.TaskTypeExhibitionAutoEndEnrolling)
 
 	return nil
 }
 
-func handleExhibitionStartRunning(ctx context.Context, exhibition *model.Exhibition, data interface{}) (err error) {
-	result, err := dao.Exhibition.Ctx(ctx).Data(g.Map{
+func (e *exhibition) HandleTaskAutoEndEnrolling(ctx context.Context, task *asyncTask.Task) (err error) {
+	return e.HandleEvent(ctx, task.CustomID, model.ExhibitionEventEndEnrolling, task)
+}
+
+func (e *exhibition) handleExhibitionEndEnrolling(ctx context.Context, exhibition *model.Exhibition, data interface{}) (err error) {
+	exInfo := map[string]any{
+		dao.Exhibition.Columns().Status:     int(model.ExhibitionStatusEnrollingEnded),
+		dao.Exhibition.Columns().Version:    exhibition.Version + 1,
+		dao.Exhibition.Columns().UpdateTime: time.Now().Unix(),
+	}
+	taskContent := map[string]any{
+		"exhibition_id": exhibition.ID,
+		"start_time":    exhibition.StartTime.Unix(),
+	}
+	taskContentBytes, err := json.Marshal(taskContent)
+	if err != nil {
+		return gerror.Newf("end enrolling failed, marshal task content failed, err: %s", err.Error())
+	}
+
+	err = g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		err = e.asyncTask.AddScheduledTaskWithTx(ctx, tx, model.TaskTypeExhibitionAutoStartRunning, exhibition.ID, taskContentBytes, exhibition.StartTime)
+		if err != nil {
+			return gerror.Newf("end enrolling failed, add scheduled task failed, err: %s", err.Error())
+		}
+
+		result, err := dao.Exhibition.Ctx(ctx).Data(exInfo).
+			Where(dao.Exhibition.Columns().ID, exhibition.ID).
+			Where(dao.Exhibition.Columns().Version, exhibition.Version).
+			Update()
+		if err != nil {
+			return gerror.Newf("end enrolling failed, err: %s", err.Error())
+		}
+
+		rowsAffected, err := result.RowsAffected()
+		if err != nil {
+			return gerror.Newf("end enrolling failed, get rows affected failed, err: %s", err.Error())
+		}
+		if rowsAffected == 0 {
+			return gerror.Newf("end enrolling failed, %v", model.ErrConcurrentUpdate)
+		}
+
+		return nil
+	})
+	if err != nil {
+		return gerror.Newf("end enrolling failed, err: %s", err.Error())
+	}
+
+	e.asyncTask.WakeUp(model.TaskTypeExhibitionAutoStartRunning)
+
+	return nil
+}
+
+func (e *exhibition) HandleTaskAutoStartRunning(ctx context.Context, task *asyncTask.Task) (err error) {
+	return e.HandleEvent(ctx, task.CustomID, model.ExhibitionEventStartRunning, task)
+}
+
+func (e *exhibition) handleExhibitionStartRunning(ctx context.Context, exhibition *model.Exhibition, data interface{}) (err error) {
+	exInfo := map[string]any{
 		dao.Exhibition.Columns().Status:     int(model.ExhibitionStatusRunning),
 		dao.Exhibition.Columns().Version:    exhibition.Version + 1,
 		dao.Exhibition.Columns().UpdateTime: time.Now().Unix(),
-	}).
-		Where(dao.Exhibition.Columns().ID, exhibition.ID).
-		Where(dao.Exhibition.Columns().Version, exhibition.Version).
-		Update()
+	}
+	taskContent := map[string]any{
+		"exhibition_id": exhibition.ID,
+		"end_time":      exhibition.EndTime.Unix(),
+	}
+	taskContentBytes, err := json.Marshal(taskContent)
+	if err != nil {
+		return gerror.Newf("start running failed, marshal task content failed, err: %s", err.Error())
+	}
+
+	err = g.DB().Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		err = e.asyncTask.AddScheduledTaskWithTx(ctx, tx, model.TaskTypeExhibitionAutoEnd, exhibition.ID, taskContentBytes, exhibition.EndTime)
+		if err != nil {
+			return gerror.Newf("start running failed, add scheduled task failed, err: %s", err.Error())
+		}
+
+		result, err := dao.Exhibition.Ctx(ctx).Data(exInfo).
+			Where(dao.Exhibition.Columns().ID, exhibition.ID).
+			Where(dao.Exhibition.Columns().Version, exhibition.Version).
+			Update()
+		if err != nil {
+			return gerror.Newf("start running failed, err: %s", err.Error())
+		}
+
+		rowsAffected, err := result.RowsAffected()
+		if err != nil {
+			return gerror.Newf("start running failed, get rows affected failed, err: %s", err.Error())
+		}
+		if rowsAffected == 0 {
+			return gerror.Newf("start running failed, %v", model.ErrConcurrentUpdate)
+		}
+
+		return nil
+	})
 	if err != nil {
 		return gerror.Newf("start running failed, err: %s", err.Error())
 	}
 
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return gerror.Newf("start running failed, get rows affected failed, err: %s", err.Error())
-	}
-	if rowsAffected == 0 {
-		return gerror.Newf("start running failed, %v", model.ErrConcurrentUpdate)
-	}
+	e.asyncTask.WakeUp(model.TaskTypeExhibitionAutoEnd)
 
 	return nil
 }
 
-func handleExhibitionEnd(ctx context.Context, exhibition *model.Exhibition, data interface{}) (err error) {
+func (e *exhibition) HandleTaskAutoEnd(ctx context.Context, task *asyncTask.Task) (err error) {
+	return e.HandleEvent(ctx, task.CustomID, model.ExhibitionEventEnd, task)
+}
+
+func (e *exhibition) handleExhibitionEnd(ctx context.Context, exhibition *model.Exhibition, data interface{}) (err error) {
 	result, err := dao.Exhibition.Ctx(ctx).Data(g.Map{
 		dao.Exhibition.Columns().Status:     int(model.ExhibitionStatusEnded),
 		dao.Exhibition.Columns().Version:    exhibition.Version + 1,
@@ -257,7 +383,7 @@ func handleExhibitionEnd(ctx context.Context, exhibition *model.Exhibition, data
 	return nil
 }
 
-func handleExhibitionCancel(ctx context.Context, exhibition *model.Exhibition, data interface{}) (err error) {
+func (e *exhibition) handleExhibitionCancel(ctx context.Context, exhibition *model.Exhibition, data interface{}) (err error) {
 	result, err := dao.Exhibition.Ctx(ctx).Data(g.Map{
 		dao.Exhibition.Columns().Status:     int(model.ExhibitionStatusCancelled),
 		dao.Exhibition.Columns().Version:    exhibition.Version + 1,
